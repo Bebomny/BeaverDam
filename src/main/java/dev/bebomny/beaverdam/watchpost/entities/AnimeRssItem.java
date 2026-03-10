@@ -1,0 +1,53 @@
+package dev.bebomny.beaverdam.watchpost.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "anime_rss_items", schema = "watchpost")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AnimeRssItem {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rss_feed_id")
+    private RssFeed rssFeed;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "show_series_id")
+    private ShowSeries showSeries;
+
+    private Long internalFileId;
+
+    @Column(length = 1000)
+    private String itemName;
+    @Column(length = 1000)
+    private String localizedName;
+    private String groupName;
+    private String episode;
+    private String season;
+    private String releaseSeason;
+
+    private String rssCategory;
+    private String videoCategory;
+    @Column(length = 1200)
+    private String fileLink;
+    private Long fileSize;
+    private String guid;
+    private String onlineId;
+    private Boolean isPermaLink;
+    private LocalDateTime pubDate;
+    private LocalDateTime localSaveDate;
+
+    @Column(unique = true, nullable = false)
+    private String infoHash;
+
+    private Boolean displayed;
+    private Boolean repack;
+}
