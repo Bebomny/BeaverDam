@@ -26,28 +26,30 @@ public class AnimeRssItem {
     private Long internalFileId;
 
     @Column(length = 1000)
-    private String itemName;
+    private String rawItemName;
+    @Column(length = 1000)
+    private String seriesName;
     @Column(length = 1000)
     private String localizedName;
     private String groupName;
     private String episode;
     private String season;
-    private String releaseSeason;
 
     private String rssCategory;
-    private String videoCategory;
+    private String videoCategory; // prev: erai-category: [Airing] etc
     @Column(length = 1200)
     private String fileLink;
     private Long fileSize;
     private String guid;
     private String onlineId;
-    private Boolean isPermaLink;
     private LocalDateTime pubDate;
     private LocalDateTime localSaveDate;
 
     @Column(unique = true, nullable = false)
     private String infoHash;
 
+    private Boolean downloaded;
+    private LocalDateTime downloadedOn;
     private Boolean displayed;
     private Boolean repack;
 }

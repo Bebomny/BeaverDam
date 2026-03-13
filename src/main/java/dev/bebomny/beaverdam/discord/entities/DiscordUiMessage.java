@@ -15,7 +15,7 @@ public class DiscordUiMessage {
     private Long id;
 
     private Long discordMessageId;
+    private Long discordChannelId;
     private String targetModule; //watchpost or docker
     private Long targetItemId; //The ID of the AnimeRssItem or Docker Container
-    private String actionType; //"DOWNLOAD", "IGNORE", "PAUSE_SERVER"
 }

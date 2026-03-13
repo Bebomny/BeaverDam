@@ -24,6 +24,7 @@ public class ShowSeries {
     private Long onlineId;
     @Column(length = 1000)
     private String malLink;
+    private String releaseSeason;
     private Boolean isInteresting;
     private Boolean isIgnored;
     private Boolean autoDownload;

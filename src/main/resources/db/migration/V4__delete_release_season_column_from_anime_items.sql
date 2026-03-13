@@ -1,0 +1,2 @@
+ALTER TABLE watchpost.anime_rss_items
+DROP COLUMN release_season

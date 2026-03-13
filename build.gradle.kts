@@ -22,6 +22,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://m2.chew.pro/releases") }
 }
 
 extra["springModulithVersion"] = "2.0.3"
@@ -52,6 +53,13 @@ dependencies {
 
     //RSS reader
     implementation("com.apptasticsoftware:rssreader:3.12.0")
+
+    //Discord
+    implementation("net.dv8tion:JDA:6.3.1") {
+        exclude(module = "opus-java")
+        exclude(module = "tink")
+    }
+    implementation("pw.chew:jda-chewtils:2.2.1")
 }
 
 dependencyManagement {
