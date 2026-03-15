@@ -14,7 +14,6 @@ public class VideoDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 1-to-1 relationship mapping
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "anime_rss_item_id", referencedColumnName = "id", unique = true)
     private AnimeRssItem animeRssItem;

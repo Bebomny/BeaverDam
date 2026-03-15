@@ -4,6 +4,7 @@ import com.apptasticsoftware.rssreader.RssReader;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
 import dev.bebomny.beaverdam.watchpost.readers.EraiRssReader;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;
+import dev.bebomny.beaverdam.watchpost.services.LegacyDataMigrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,9 +22,15 @@ public class WatchpostScheduler {
     private final RssFeedRepository rssFeedRepository;
     private final WatchpostItemManager itemManager;
     private final HttpClient vpnHttpClient;
+    private final LegacyDataMigrationService migrationService;
 
     @Scheduled(fixedDelayString = "${watchpost.showseries.poll_interval:1800000}")
     public void executeFetchCycle() {
+        if (!migrationService.isMigrationFinished()) {
+            log.atInfo().log("Migration is currently running, will wait until next cycle...");
+            return;
+        }
+
         List<RssFeed> activeRssFeeds = rssFeedRepository.findByEnabledTrue();
 
         if (activeRssFeeds.isEmpty()) {

@@ -12,14 +12,15 @@ public class FileFormatter {
             return -1L;
         }
 
-        Pattern pattern = Pattern.compile("^([0-9.]+)\\s*([a-zA-Z]*)$");
+        Pattern pattern = Pattern.compile("^([0-9.,]+)\\s*([a-zA-Z]*)$");
         Matcher matcher = pattern.matcher(size.trim());
 
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid file size format: " + size);
         }
 
-        double value = Double.parseDouble(matcher.group(1));
+        String numericPart = matcher.group(1).replace(",", "");
+        double value = Double.parseDouble(numericPart);
         String unit = matcher.group(2).toUpperCase();
 
         long multiplier = switch (unit) {

@@ -77,7 +77,7 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
 //                .internalFileId()
                 .rawItemName(metadata.rawTitle())
                 .seriesName(metadata.seriesName())
-//                .localizedName()
+                .localizedName(metadata.seriesName()) //TODO: change after adding online anime matching support
                 .groupName(metadata.groupName())
                 .episode(metadata.episode())
                 .season(metadata.season())
