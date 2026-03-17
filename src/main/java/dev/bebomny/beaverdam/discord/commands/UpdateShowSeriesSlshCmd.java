@@ -3,7 +3,7 @@ package dev.bebomny.beaverdam.discord.commands;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.events.ShowSeriesUpdateParamEvent;
+import dev.bebomny.beaverdam.common.helpers.ShowSeriesParam;
 import dev.bebomny.beaverdam.discord.DiscordActionService;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +60,7 @@ public class UpdateShowSeriesSlshCmd extends SlashCommand implements ManagementC
                 .map(OptionMapping::getAsBoolean)
                 .orElse(false);
 
-        ShowSeriesUpdateParamEvent.ShowSeriesParam parsedParam = ShowSeriesUpdateParamEvent.ShowSeriesParam.from(chosenParam);
+        ShowSeriesParam parsedParam = ShowSeriesParam.from(chosenParam);
         if (parsedParam == null) {
             event.getHook().sendMessage("Invalid param %s".formatted(chosenParam)).queue();
             return;
@@ -83,17 +83,17 @@ public class UpdateShowSeriesSlshCmd extends SlashCommand implements ManagementC
                 .setTitle(seriesDetails.name())
                 .setDescription("ID: " + seriesDetails.id())
                 .addField("Ignored",
-                        parsedParam == ShowSeriesUpdateParamEvent.ShowSeriesParam.IGNORED
+                        parsedParam == ShowSeriesParam.IGNORED
                                 ? chosenValue.toString()
                                 : seriesDetails.ignored().toString(),
                         true)
                 .addField("Interesting",
-                        parsedParam == ShowSeriesUpdateParamEvent.ShowSeriesParam.INTERESTING
+                        parsedParam == ShowSeriesParam.INTERESTING
                                 ? chosenValue.toString()
                                 : seriesDetails.interesting().toString(),
                         true)
                 .addField("Auto Download",
-                        parsedParam == ShowSeriesUpdateParamEvent.ShowSeriesParam.AUTODOWNLOAD
+                        parsedParam == ShowSeriesParam.AUTODOWNLOAD
                                 ? chosenValue.toString()
                                 : seriesDetails.autoDownload().toString(),
                         true);

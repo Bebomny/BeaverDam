@@ -4,6 +4,7 @@ import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;
+import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
 
     private final RssFeedRepository rssFeedRepository;
+    private final ShowSeriesRepository showSeriesRepository;
 
     @Override
     @Transactional
