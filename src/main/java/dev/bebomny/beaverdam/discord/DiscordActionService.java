@@ -2,9 +2,10 @@ package dev.bebomny.beaverdam.discord;
 
 import dev.bebomny.beaverdam.common.events.AnimeItemDisplayedEvent;
 import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
-import dev.bebomny.beaverdam.common.events.ShowSeriesMarkAsInterestingEvent;
+import dev.bebomny.beaverdam.common.events.ShowSeriesUpdateParamEvent;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;
 import dev.bebomny.beaverdam.discord.repos.DiscordUiMessageRepository;
+import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class DiscordActionService {
 
     private final DiscordUiMessageRepository uiMsgRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final WatchpostQueryApi watchpostQueryApi;
 
     @Transactional
     public void saveMappingAndPublishAnimeDisplayed(DiscordUiMessage partialMapping) {
@@ -30,7 +32,17 @@ public class DiscordActionService {
     }
 
     @Transactional
-    public void publishButtonSetAsInteresting(Long showSeriesId) {
-        eventPublisher.publishEvent(new ShowSeriesMarkAsInterestingEvent(showSeriesId));
+    public void publishButtonSetAsInteresting(Long animeItemId) {
+        watchpostQueryApi.getShowSeriesIdForAnimeItem(animeItemId).ifPresent(seriesId -> {
+            eventPublisher.publishEvent(new ShowSeriesUpdateParamEvent(
+                    seriesId,
+                    ShowSeriesUpdateParamEvent.ShowSeriesParam.INTERESTING,
+                    true));
+        });
+    }
+
+    @Transactional
+    public void publishShowSeriesUpdateRequest(Long showSeriesId, ShowSeriesUpdateParamEvent.ShowSeriesParam showSeriesParam, Boolean newValue) {
+        eventPublisher.publishEvent(new ShowSeriesUpdateParamEvent(showSeriesId, showSeriesParam, newValue));
     }
 }
