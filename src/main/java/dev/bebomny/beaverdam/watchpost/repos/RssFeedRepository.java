@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface RssFeedRepository extends JpaRepository<RssFeed, Integer> {
     List<RssFeed> findByEnabledTrue();
+
+    boolean existsByFeedUrl(String feedUrl);
 }
