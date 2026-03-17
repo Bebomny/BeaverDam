@@ -29,10 +29,10 @@ public class VpnClientConfig {
                 .connectTimeout(Duration.ofSeconds(15));
 
         if (vpnEnabled) {
-            log.info("Configuring Watchpost HttpClient to route through proxy: {}:{}", vpnHost, vpnPort);
+            log.atInfo().log("Configuring Watchpost HttpClient to route through proxy: {}:{}", vpnHost, vpnPort);
             clientBuilder.proxy(ProxySelector.of(new InetSocketAddress(vpnHost, Integer.parseInt(vpnPort))));
         } else {
-            log.warn("VPN routing is DISABLED. Watchpost will use a direct connection.");
+            log.atWarn().log("VPN routing is DISABLED. Watchpost will use a direct connection.");
         }
 
         return clientBuilder.build();

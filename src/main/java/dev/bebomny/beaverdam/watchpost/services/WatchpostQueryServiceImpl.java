@@ -1,5 +1,6 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
+import dev.bebomny.beaverdam.common.dtos.DownloadDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesSearchResult;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
@@ -57,6 +58,7 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ShowSeriesStateDetailsResult> getSeriesDetailsById(Long id) {
         return showSeriesRepository.findById(id)
                 .map(series -> new ShowSeriesStateDetailsResult(
@@ -73,5 +75,18 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
 //                .limit(1)
 //                .toList()
 //                .getFirst();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<DownloadDetailsResult> getDownloadDetailsForAnimeItemById(Long animeItemId) {
+        return animeItemRepository.findWithSeriesById(animeItemId)
+                .map(animeItem -> new DownloadDetailsResult(
+                        animeItemId,
+                        animeItem.getFileLink(),
+                        animeItem.getSeriesName(),
+                        animeItem.getEpisode(),
+                        animeItem.getShowSeries().getCustomShareRatio()
+                ));
     }
 }
