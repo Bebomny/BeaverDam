@@ -29,7 +29,7 @@ public class DiscordActionService {
 
     @Transactional
     public void publishButtonDownload(Long targetItemId) {
-        eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(targetItemId));
+        eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(targetItemId, null, "beaverdam"));
     }
 
     @Transactional

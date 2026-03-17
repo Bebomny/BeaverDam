@@ -25,6 +25,11 @@ public class TorrentManagerService {
                 .build();
     }
 
+    /**
+     * Downloads torrent files and uploads them as binary data to the QBittorrent client <br>
+     * For some reason, some links weren't accepted by QBittorrent,
+     * so we manually download the files and send them as raw data
+     */
     public void processDownload(String torrentUrl, String torrentName, String category, String tags, String ratioLimit) {
         try {
             log.atInfo().log("Downloading .torrent file from: {}", torrentUrl);
@@ -42,7 +47,7 @@ public class TorrentManagerService {
 
             qBittorrentClient.addTorrent(torrentFileBytes, torrentName, category, tags, ratioLimit);
         } catch (Exception e) {
-            log.error("Failed to process torrent download for '{}': {}", torrentName, e.getMessage());
+            log.atError().log("Failed to process torrent download for '{}': {}", torrentName, e.getMessage());
 
             throw new RuntimeException("Torrent processing failed", e);
         }

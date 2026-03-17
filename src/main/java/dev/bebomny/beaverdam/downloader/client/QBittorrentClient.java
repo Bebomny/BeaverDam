@@ -3,22 +3,27 @@ package dev.bebomny.beaverdam.downloader.client;
 import dev.bebomny.beaverdam.downloader.config.QBittorrentProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class QBittorrentClient {
+
+    private static final String USER_AGENT = "BeaverDam - Private Discord Bot";
 
     private final RestClient restClient;
     private final QBittorrentProperties properties;
@@ -29,10 +34,10 @@ public class QBittorrentClient {
      * Adds a torrent to qbittorrent
      *
      * @param torrentBytes the torrent file in Byte Array form
-     * @param torrentName the name of the torrent file
-     * @param category categories to assign to the torrent in qbit
-     * @param tags tags to assign to the torrent split by ','
-     * @param ratioLimit the share ratio limit to set on the torrent. Leave blank for no share limit
+     * @param torrentName  the name of the torrent file
+     * @param category     categories to assign to the torrent in qbit
+     * @param tags         tags to assign to the torrent split by ','
+     * @param ratioLimit   the share ratio limit to set on the torrent. Leave blank for no share limit
      */
     public void addTorrent(byte[] torrentBytes, String torrentName, String category, String tags, String ratioLimit) {
         if (authCookie.get() == null) {
@@ -58,17 +63,18 @@ public class QBittorrentClient {
         ResponseEntity<Void> response = restClient.post()
                 .uri("/api/v2/auth/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header(HttpHeaders.USER_AGENT, USER_AGENT)
                 .body(formData)
                 .retrieve()
                 .toBodilessEntity();
 
         List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
-        if (cookies != null ) {
+        if (cookies != null) {
             for (String cookie : cookies) {
                 if (cookie.startsWith("SID=")) {
                     String sid = cookie.split(";")[0];
                     authCookie.set(sid);
-                    log.info("Successfully authenticated and cached new SID cookie.");
+                    log.info("Successfully authenticated and cached new SID cookie. {}", sid);
                     return;
                 }
             }
@@ -77,45 +83,78 @@ public class QBittorrentClient {
     }
 
     private void executeAddTorrent(byte[] torrentBytes, String torrentName, String category, String tags, String ratioLimit) {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        try {
+            String boundary = "---------------------------" + UUID.randomUUID().toString().replace("-", "");
 
-        builder.part("torrents", new ByteArrayResource(torrentBytes) {
-            @Override
-            public String getFilename() {
-                return torrentName.replaceAll("[^a-zA-Z0-9.-]", "_") + ".torrent";
+            Map<String, String> params = new HashMap<>();
+            if (category != null && !category.isBlank()) {
+                params.put("category", category);
             }
-        });
+            if (tags != null && !tags.isBlank()) {
+                params.put("tags", tags);
+            }
+            if (ratioLimit != null && !ratioLimit.isBlank()) {
+                params.put("ratioLimit", ratioLimit);
+            }
 
-        if (category != null && !category.isBlank()) {
-            builder.part("category", category);
+            byte[] requestBody = buildRawMultipartBody(boundary, torrentBytes, torrentName, params);
+
+            ResponseEntity<String> response = restClient.post()
+                    .uri("/api/v2/torrents/add")
+                    .header(HttpHeaders.COOKIE, authCookie.get())
+                    .header(HttpHeaders.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary)
+                    .header(HttpHeaders.REFERER, properties.baseUrl())
+                    .header(HttpHeaders.USER_AGENT, USER_AGENT)
+                    .body(requestBody)
+                    .retrieve()
+                    .onStatus(status -> status.isSameCodeAs(HttpStatus.FORBIDDEN), (req, res) -> {
+                        throw HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Forbidden", res.getHeaders(), null, null);
+                    })
+                    .onStatus(HttpStatusCode::isError, (req, res) -> {
+                        throw new RuntimeException("qBittorrent returned error code: " + res.getStatusCode());
+                    })
+                    .toEntity(String.class);
+
+            String responseBody = response.getBody();
+            log.atDebug().log("qBittorrent response: '{}'", responseBody);
+
+            if (responseBody != null && responseBody.trim().equalsIgnoreCase("Fails.")) {
+                log.atError().log("qBittorrent rejected the torrent '{}'! Returned 'Fails.'", torrentName);
+
+                throw new RuntimeException("qBittorrent failed to add the torrent.");
+            } else {
+                log.atInfo().log("Successfully added torrent to QBittorrent: {}", torrentName);
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to construct multipart body in memory", e);
         }
+    }
 
-        if (tags != null && !tags.isBlank()) {
-            builder.part("tags", tags);
+    private byte[] buildRawMultipartBody(String boundary, byte[] fileBytes, String torrentName, Map<String, String> params) throws IOException {
+        byte[] newLine = "\r\n".getBytes();
+        byte[] boundaryBytes = ("--" + boundary + "\r\n").getBytes();
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                String constructedParam = "Content-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n"
+                        .formatted(param.getKey(), param.getValue());
+                outputStream.write(boundaryBytes);
+                outputStream.write(constructedParam.getBytes());
+            }
+
+            String safeFilename = torrentName.replaceAll("[^a-zA-Z0-9.-]", "_") + ".torrent";
+            String fileHeader = "Content-Disposition: form-data; name=\"torrents\"; filename=\"%s\"\r\nContent-Type: application/x-bittorrent\r\n\r\n"
+                    .formatted(safeFilename);
+
+            outputStream.write(boundaryBytes);
+            outputStream.write(fileHeader.getBytes());
+            outputStream.write(fileBytes);
+            outputStream.write(newLine);
+
+            outputStream.write(("--" + boundary + "--\r\n").getBytes());
+
+            return outputStream.toByteArray();
         }
-
-        if (ratioLimit != null && !ratioLimit.isBlank()) {
-            builder.part("ratioLimit", ratioLimit);
-        }
-
-        restClient.post()
-                .uri("/api/v2/torrents/add")
-                .header(HttpHeaders.COOKIE, authCookie.get())
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(builder.build())
-                .retrieve()
-                .onStatus(
-                        status -> status.isSameCodeAs(HttpStatus.FORBIDDEN),
-                        (req, res) -> {
-                            throw HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Forbidden", res.getHeaders(), null, null);
-                        })
-                .onStatus(
-                        HttpStatusCode::isError,
-                        (req, res) -> {
-                            throw new RuntimeException("qBittorrent returned error code: " + res.getStatusCode());
-                        })
-                .toBodilessEntity();
-
-        log.atInfo().log("Successfully added torrent to QBittorrent: {}", torrentName);
     }
 }
