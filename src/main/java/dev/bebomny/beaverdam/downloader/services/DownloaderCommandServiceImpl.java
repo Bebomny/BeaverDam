@@ -3,7 +3,8 @@ package dev.bebomny.beaverdam.downloader.services;
 import dev.bebomny.beaverdam.downloader.DownloaderCommandApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jvnet.hk2.annotations.Service;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
