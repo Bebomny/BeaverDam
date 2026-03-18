@@ -33,10 +33,16 @@ public class UploadTorrentSlshCmd extends SlashCommand implements ManagementComm
 
     @Override
     protected void execute(SlashCommandEvent event) {
+        event.deferReply().queue();
         String torrentUrl = Objects.requireNonNull(event.getOption("torrenturl")).getAsString();
 
-        downloaderCommandApi.downloadTorrentFromUrl(torrentUrl, null, "beaverdam", "2.0");
+        try {
+            downloaderCommandApi.downloadTorrentFromUrl(torrentUrl, null, "beaverdam", "2.0");
 
-        event.reply("Successfully uploaded torrent to QBittorrent").queue();
+            event.getHook().sendMessage("Successfully uploaded torrent to QBittorrent").queue();
+        } catch (Exception e) {
+            event.getHook().sendMessage("Failed to upload torrent. Error: " + e.getMessage()).queue();
+        }
+
     }
 }
