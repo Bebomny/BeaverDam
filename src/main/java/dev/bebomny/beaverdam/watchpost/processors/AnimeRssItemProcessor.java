@@ -50,6 +50,8 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
 
         ShowSeries series = showSeriesRepository.findBySeriesNameIgnoreCase(metadata.seriesName())
                 .orElseGet(() -> {
+                    //TODO: Idea maybe compare with similar series if its a new season
+                    // and automatically update the required parameters like is interesting, ignored, autodownload
                     ShowSeries newShowSeries = showSeriesRepository.save(
                             ShowSeries.builder()
                                     .seriesName(metadata.seriesName())
@@ -63,7 +65,10 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
                                     .addedOn(LocalDateTime.now())
                                     .build());
 
-                    eventPublisher.publishEvent(new WatchpostNewShowSeriesEvent(newShowSeries.getId()));
+                    eventPublisher.publishEvent(new WatchpostNewShowSeriesEvent(
+                            newShowSeries.getId(), newShowSeries.getSeriesName(),
+                            newShowSeries.getIsInteresting(), newShowSeries.getIsIgnored(), newShowSeries.getAutoDownload()
+                    ));
 
                     return newShowSeries;
                 });

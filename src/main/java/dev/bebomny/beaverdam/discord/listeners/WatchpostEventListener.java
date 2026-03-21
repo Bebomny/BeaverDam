@@ -1,6 +1,8 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
+import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.events.WatchpostNewAnimeItemEvent;
+import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
 import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
 import dev.bebomny.beaverdam.common.helpers.FileFormatter;
 import dev.bebomny.beaverdam.discord.ButtonActionType;
@@ -41,13 +43,14 @@ public class WatchpostEventListener {
 
         List<Button> buttons = new ArrayList<>();
         buttons.add(Button.link(AnimeHelper.encodeURL(event.fileLink()), "Torrent File"));
-        buttons.add(Button.primary(ButtonActionType.DOWNLOAD.getId(), "Download"));
+        buttons.add(ButtonActionType.ANIME_ITEM_DOWNLOAD.createButton());
         if (!event.isInteresting()) {
-            buttons.add(Button.primary(ButtonActionType.SET_AS_INTERESTING.getId(), "Set As Interesting"));
+            buttons.add(ButtonActionType.ANIME_ITEM_SET_AS_INTERESTING.createButton());
         }
 
         DiscordUiMessage mapping = DiscordUiMessage.builder()
                 .targetModule("watchpost")
+                .targetItemType("anime_rss_item")
                 .targetItemId(event.animeItemId())
                 .build();
 
@@ -101,5 +104,55 @@ public class WatchpostEventListener {
         }
 
         return embedBuilder.build();
+    }
+
+    @ApplicationModuleListener
+    public void onNewShowSeriesEvent(WatchpostNewShowSeriesEvent event) {
+        MessageEmbed embed = createNewShowSeriesEmbed(
+                event.showSeriesName(), event.showSeriesId(),
+                event.interesting(), event.ignored(), event.autoDownload(), false);
+
+        List<Button> buttons = new ArrayList<>();
+        buttons.add(ButtonActionType.SHOW_SERIES_SUBMIT.createButton());
+        buttons.add(ButtonActionType.SHOW_SERIES_INTERESTING.createButton());
+        buttons.add(ButtonActionType.SHOW_SERIES_IGNORED.createButton());
+        buttons.add(ButtonActionType.SHOW_SERIES_AUTODOWNLOAD.createButton());
+
+        DiscordUiMessage mapping = DiscordUiMessage.builder()
+                .targetModule("watchpost")
+                .targetItemType("show_series")
+                .targetItemId(event.showSeriesId())
+                .build();
+
+        messagingService.sendEmbedWithActions(
+                TargetChannel.CONTROL_PANEL,
+                embed, List.of(ActionRow.of(buttons)),
+                mapping);
+    }
+
+    public static MessageEmbed createNewShowSeriesEmbed(ShowSeriesStateDetailsResult seriesDetails, Boolean submitted) {
+        return createNewShowSeriesEmbed(
+                seriesDetails.name(), seriesDetails.id(),
+                seriesDetails.interesting(), seriesDetails.ignored(), seriesDetails.autoDownload(),
+                submitted);
+    }
+
+    public static MessageEmbed createNewShowSeriesEmbed(String name, Long id,
+                                                        Boolean isInteresting, Boolean isIgnored, Boolean autoDownload,
+                                                        Boolean submitted) {
+        EmbedBuilder eb = new EmbedBuilder()
+                .setColor(0x4ef320)
+                .setAuthor("New Unknown ShowSeries Found!")
+                .setTitle(name)
+                .setDescription("ID: " + id)
+                .addField("Ignored", isIgnored.toString(), true)
+                .addField("Interesting", isInteresting.toString(), true)
+                .addField("Auto Download", autoDownload.toString(), true);
+
+        if (submitted) {
+            eb.setFooter("Submitted at %s".formatted(Date.from(Instant.now())));
+        }
+
+        return eb.build();
     }
 }

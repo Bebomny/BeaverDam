@@ -9,4 +9,8 @@ public interface DiscordUiMessageRepository extends JpaRepository<DiscordUiMessa
     DiscordUiMessage findByDiscordMessageId(Long discordMessageId);
 
     List<DiscordUiMessage> findByTargetItemId(Long targetItemId);
+
+    void removeByDiscordMessageId(Long discordMessageId);
+
+    void deleteByDiscordMessageId(Long discordMessageId);
 }

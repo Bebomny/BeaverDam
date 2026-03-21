@@ -19,7 +19,7 @@ public class ShowSeriesEventListener {
 
     @ApplicationModuleListener
     public void onUpdateParam(ShowSeriesUpdateParamEvent event) {
-        log.atInfo().log("ShowSeriesUpdateParamEvent: {}", event.toString());
+        log.atDebug().log("ShowSeriesUpdateParamEvent: {}", event.toString());
 
         showSeriesRepository.findById(event.targetItemId()).ifPresent(series -> {
             switch (event.param()) {
@@ -51,6 +51,10 @@ public class ShowSeriesEventListener {
                     } else {
                         series.setAutoDownload(false);
                     }
+                }
+
+                case SUBMITTED -> {
+                    series.setSubmitted(true);
                 }
             }
 

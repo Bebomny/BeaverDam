@@ -22,6 +22,11 @@ public class DiscordActionService {
     private final WatchpostQueryApi watchpostQueryApi;
 
     @Transactional
+    public void removeUiMessageMappingByMessageId(Long messageId) {
+        uiMsgRepository.deleteByDiscordMessageId(messageId);
+    }
+
+    @Transactional
     public void saveMappingAndPublishAnimeDisplayed(DiscordUiMessage partialMapping) {
         uiMsgRepository.save(partialMapping);
         eventPublisher.publishEvent(new AnimeItemDisplayedEvent(partialMapping.getTargetItemId()));

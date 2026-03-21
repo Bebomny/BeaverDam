@@ -17,5 +17,6 @@ public class DiscordUiMessage {
     private Long discordMessageId;
     private Long discordChannelId;
     private String targetModule; //watchpost or docker
+    private String targetItemType; //AnimeRssItem or ShowSeries etc
     private Long targetItemId; //The ID of the AnimeRssItem or Docker Container
 }

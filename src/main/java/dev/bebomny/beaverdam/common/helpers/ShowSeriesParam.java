@@ -3,7 +3,8 @@ package dev.bebomny.beaverdam.common.helpers;
 public enum ShowSeriesParam {
     IGNORED,
     INTERESTING,
-    AUTODOWNLOAD;
+    AUTODOWNLOAD,
+    SUBMITTED;
 
     public static ShowSeriesParam from(String stringParam) {
         for (ShowSeriesParam showSeriesParam : ShowSeriesParam.values()) {
