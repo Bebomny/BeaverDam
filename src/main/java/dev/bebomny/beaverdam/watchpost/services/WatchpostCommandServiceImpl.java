@@ -1,8 +1,11 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
 import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
+import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.common.helpers.ShowSeriesParam;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
+import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +53,60 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
                 .feedUrl(feedUrl)
                 .pollInterval(pollInterval)
                 .enabled(enabled)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ShowSeriesStateDetailsResult updateSeriesState(Long targetItemId, ShowSeriesParam param, Boolean newValue) {
+        ShowSeries series = showSeriesRepository.findById(targetItemId)
+                .orElseThrow(() -> new IllegalArgumentException("Series id: " + targetItemId + "not found"));
+
+        switch (param) {
+            case INTERESTING -> {
+                if (newValue) {
+                    series.setIsInteresting(true);
+                    series.setIsIgnored(false);
+                } else {
+                    series.setIsInteresting(false);
+                    series.setAutoDownload(false);
+                }
+            }
+
+            case IGNORED ->  {
+                if (newValue) {
+                    series.setIsIgnored(true);
+                    series.setIsInteresting(false);
+                    series.setAutoDownload(false);
+                } else {
+                    series.setIsIgnored(false);
+                }
+            }
+
+            case AUTODOWNLOAD ->  {
+                if (newValue) {
+                    series.setAutoDownload(true);
+                    series.setIsInteresting(true);
+                    series.setIsIgnored(false);
+                } else {
+                    series.setAutoDownload(false);
+                }
+            }
+
+            case SUBMITTED -> {
+                series.setSubmitted(true);
+            }
+        }
+
+//        showSeriesRepository.save(series);
+        log.atInfo().log("Updated {} param {} to {}!", series.getSeriesName(), param.toString(), newValue.toString());
+
+        return ShowSeriesStateDetailsResult.builder()
+                .id(targetItemId)
+                .name(series.getSeriesName())
+                .interesting(series.getIsInteresting())
+                .ignored(series.getIsIgnored())
+                .autoDownload(series.getAutoDownload())
                 .build();
     }
 }

@@ -50,6 +50,9 @@ public class DiscordButtonListener extends ListenerAdapter {
             return;
         }
 
+        //TODO: monitor this, as it might take more than 3 seconds
+//        event.deferEdit().queue();
+
         switch (actionType) {
             case ANIME_ITEM_DOWNLOAD -> {
                 discordActionService.publishButtonDownload(itemId);
@@ -73,15 +76,9 @@ public class DiscordButtonListener extends ListenerAdapter {
                 watchpostQueryApi.getSeriesDetailsById(itemId).ifPresentOrElse(series -> {
                     boolean newValue = !series.interesting();
 
-                    discordActionService.publishShowSeriesUpdateRequest(itemId, ShowSeriesParam.INTERESTING, newValue);
+                    ShowSeriesStateDetailsResult updatedDetails = discordActionService.updateShowSeries(itemId, ShowSeriesParam.INTERESTING, newValue);
 
-                    // We fake the change to avoid having to wait for the database to respond with a result
-                    // as it can take more than 3 seconds which discord requires to answer in.
-                    ShowSeriesStateDetailsResult fakeUpdatedDetails = new ShowSeriesStateDetailsResult(
-                            series.id(), series.name(),
-                            newValue, series.ignored(), series.autoDownload());
-
-                    MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(fakeUpdatedDetails, false);
+                    MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, false);
 
                     event.editMessageEmbeds(newEmbed).queue();
                 }, () -> event.reply(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
@@ -93,15 +90,9 @@ public class DiscordButtonListener extends ListenerAdapter {
                 watchpostQueryApi.getSeriesDetailsById(itemId).ifPresentOrElse(series -> {
                     boolean newValue = !series.ignored();
 
-                    discordActionService.publishShowSeriesUpdateRequest(itemId, ShowSeriesParam.IGNORED, newValue);
+                    ShowSeriesStateDetailsResult updatedDetails = discordActionService.updateShowSeries(itemId, ShowSeriesParam.IGNORED, newValue);
 
-                    // We fake the change to avoid having to wait for the database to respond with a result
-                    // as it can take more than 3 seconds which discord requires to answer in.
-                    ShowSeriesStateDetailsResult fakeUpdatedDetails = new ShowSeriesStateDetailsResult(
-                            series.id(), series.name(),
-                            series.interesting(), newValue, series.autoDownload());
-
-                    MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(fakeUpdatedDetails, false);
+                    MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, false);
 
                     event.editMessageEmbeds(newEmbed).queue();
                 }, () -> event.reply(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
@@ -113,15 +104,9 @@ public class DiscordButtonListener extends ListenerAdapter {
                 watchpostQueryApi.getSeriesDetailsById(itemId).ifPresentOrElse(series -> {
                     boolean newValue = !series.autoDownload();
 
-                    discordActionService.publishShowSeriesUpdateRequest(itemId, ShowSeriesParam.AUTODOWNLOAD, newValue);
+                    ShowSeriesStateDetailsResult updatedDetails = discordActionService.updateShowSeries(itemId, ShowSeriesParam.AUTODOWNLOAD, newValue);
 
-                    // We fake the change to avoid having to wait for the database to respond with a result
-                    // as it can take more than 3 seconds which discord requires to answer in.
-                    ShowSeriesStateDetailsResult fakeUpdatedDetails = new ShowSeriesStateDetailsResult(
-                            series.id(), series.name(),
-                            series.interesting(), series.ignored(), newValue);
-
-                    MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(fakeUpdatedDetails, false);
+                    MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, false);
 
                     event.editMessageEmbeds(newEmbed).queue();
                 }, () -> event.reply(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
@@ -130,27 +115,22 @@ public class DiscordButtonListener extends ListenerAdapter {
             }
 
             case SHOW_SERIES_SUBMIT -> {
-                watchpostQueryApi.getSeriesDetailsById(itemId).ifPresentOrElse(series -> {
+                ShowSeriesStateDetailsResult updatedDetails = discordActionService.updateShowSeries(itemId, ShowSeriesParam.SUBMITTED, true);
 
-                    discordActionService.publishShowSeriesUpdateRequest(itemId, ShowSeriesParam.SUBMITTED, true);
+                discordActionService.removeUiMessageMappingByMessageId(event.getMessageIdLong());
 
-                    discordActionService.removeUiMessageMappingByMessageId(event.getMessageIdLong());
+                List<ActionRow> updatedComponents = event.getMessage().getComponents().stream()
+                        .map(actionRow -> ActionRow.of(
+                                actionRow.asActionRow().getButtons().stream()
+                                        .map(Button::asDisabled)
+                                        .collect(Collectors.toList())))
+                        .toList();
 
-                    List<ActionRow> updatedComponents = event.getMessage().getComponents().stream()
-                            .map(actionRow -> ActionRow.of(
-                                    actionRow.asActionRow().getButtons().stream()
-                                            .map(Button::asDisabled)
-                                            .collect(Collectors.toList())))
-                            .toList();
+                MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, true);
 
-                    MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(series, true);
-
-                    event.editMessageEmbeds(newEmbed)
-                            .setComponents(updatedComponents)
-                            .queue();
-                }, () -> event.reply(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
-                        .setEphemeral(true)
-                        .queue());
+                event.editMessageEmbeds(newEmbed)
+                        .setComponents(updatedComponents)
+                        .queue();
             }
         }
     }

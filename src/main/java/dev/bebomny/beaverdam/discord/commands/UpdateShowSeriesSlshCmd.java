@@ -11,13 +11,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -50,15 +49,9 @@ public class UpdateShowSeriesSlshCmd extends SlashCommand implements ManagementC
     protected void execute(SlashCommandEvent event) {
         event.deferReply().queue();
 
-        Long chosenSeriesId = Optional.ofNullable(event.getOption("showseries"))
-                .map(OptionMapping::getAsLong)
-                .orElse(-1L);
-        String chosenParam = Optional.ofNullable(event.getOption("param"))
-                .map(OptionMapping::getAsString)
-                .orElse("invalid param");
-        Boolean chosenValue = Optional.ofNullable(event.getOption("value"))
-                .map(OptionMapping::getAsBoolean)
-                .orElse(false);
+        Long chosenSeriesId = Objects.requireNonNull(event.getOption("showseries")).getAsLong();
+        String chosenParam = Objects.requireNonNull(event.getOption("param")).getAsString();
+        Boolean chosenValue = Objects.requireNonNull(event.getOption("value")).getAsBoolean();
 
         ShowSeriesParam parsedParam = ShowSeriesParam.from(chosenParam);
         if (parsedParam == null) {
@@ -66,16 +59,7 @@ public class UpdateShowSeriesSlshCmd extends SlashCommand implements ManagementC
             return;
         }
 
-        discordActionService.publishShowSeriesUpdateRequest(chosenSeriesId, parsedParam, chosenValue);
-
-        Optional<ShowSeriesStateDetailsResult> seriesDetailsOpt = watchpostQueryApi.getSeriesDetailsById(chosenSeriesId);
-        if (seriesDetailsOpt.isEmpty()) {
-            event.getHook().sendMessage("Failed to locate corresponding series for id %s".formatted(chosenSeriesId)).queue();
-            return;
-        }
-
-        //Fake the ui response, or change it later to use another watchpostApi interface?
-        ShowSeriesStateDetailsResult seriesDetails = seriesDetailsOpt.get();
+        ShowSeriesStateDetailsResult seriesDetails = discordActionService.updateShowSeries(chosenSeriesId, parsedParam, chosenValue);
 
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(0x4ef320)
