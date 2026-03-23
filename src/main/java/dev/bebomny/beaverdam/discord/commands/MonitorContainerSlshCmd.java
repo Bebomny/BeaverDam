@@ -3,6 +3,7 @@ package dev.bebomny.beaverdam.discord.commands;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.discord.entities.MonitoredContainer;
+import dev.bebomny.beaverdam.discord.listeners.DiscordConsoleListener;
 import dev.bebomny.beaverdam.discord.repos.MonitoredContainerRepository;
 import dev.bebomny.beaverdam.dockerintegration.DockerCommandApi;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,8 +23,9 @@ public class MonitorContainerSlshCmd extends SlashCommand implements ManagementC
 
     private final MonitoredContainerRepository monitoredContainerRepository;
     private final DockerCommandApi dockerCommandApi;
+    private final DiscordConsoleListener discordConsoleListener;
 
-    public MonitorContainerSlshCmd(MonitoredContainerRepository containerRepo, DockerCommandApi dockerCommandApi) {
+    public MonitorContainerSlshCmd(MonitoredContainerRepository containerRepo, DockerCommandApi dockerCommandApi, @Lazy DiscordConsoleListener discordConsoleListener) {
         this.name = "monitorcontainer";
         this.help = "Hooks the server output and prints it to the chat";
         this.ownerCommand = true;
@@ -30,6 +33,7 @@ public class MonitorContainerSlshCmd extends SlashCommand implements ManagementC
 
         this.monitoredContainerRepository = containerRepo;
         this.dockerCommandApi = dockerCommandApi;
+        this.discordConsoleListener = discordConsoleListener;
 
         this.options = List.of(
                 new OptionData(OptionType.STRING, "container", "The name of the container to monitor", true)
@@ -63,6 +67,7 @@ public class MonitorContainerSlshCmd extends SlashCommand implements ManagementC
             monitoredContainerRepository.save(mapping);
             log.atInfo().log("Saved Discord MonitoredContainer mapping for container: {}", containerName);
 
+            discordConsoleListener.registerChannel(channelId, containerName);
             dockerCommandApi.registerNewContainer(containerName, strategy, runAs, autoAttach);
 
             event.getHook().sendMessage(
