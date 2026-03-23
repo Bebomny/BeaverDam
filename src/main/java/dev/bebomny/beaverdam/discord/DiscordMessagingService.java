@@ -75,6 +75,19 @@ public class DiscordMessagingService {
     }
 
     /**
+     * Sends a standard message to the specified channelId
+     *
+     * @param channelId the channel id to which to send the message
+     * @param text      the message to be sent
+     */
+    public void sendTextMessage(String channelId, String text) {
+        TextChannel channel = resolveChannel(channelId);
+        if (channel == null) return;
+
+        channel.sendMessage(text).queue();
+    }
+
+    /**
      * Resolves a TextChannel based on the TargetChannel enum
      *
      * @param targetChannel the TargetChannel to resolve
@@ -88,6 +101,17 @@ public class DiscordMessagingService {
             case DEBUG_LOG -> debugChannelId;
         };
 
+        return resolveChannel(channelId);
+    }
+
+
+    /**
+     * Resolves a TextChannel based on the channelId
+     *
+     * @param channelId the id of the channel to resolve
+     * @return TextChannel instance or null when the resolution failed
+     */
+    private TextChannel resolveChannel(String channelId) {
         TextChannel textChannel = jda.getTextChannelById(channelId);
         if (textChannel == null) {
             log.atError().log("Could not resolve text channel with id {}", channelId);
