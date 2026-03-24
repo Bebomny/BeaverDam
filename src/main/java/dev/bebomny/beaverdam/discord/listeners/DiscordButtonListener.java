@@ -32,13 +32,14 @@ public class DiscordButtonListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
+        event.deferEdit().queue();
 
         ButtonActionType actionType = ButtonActionType.fromId(event.getComponentId());
 
         DiscordUiMessage uiMapping = uiMsgRepository.findByDiscordMessageId(event.getMessageIdLong());
         if (uiMapping == null) {
             log.atWarn().log("Got button interaction event on message {}, but couldn't match a UiMapping to it", event.getMessageIdLong());
-            event.reply("This button is too old or no longer mapped!").setEphemeral(true).queue();
+            event.getHook().sendMessage("This button is too old or no longer mapped!").setEphemeral(true).queue();
             return;
         }
 
@@ -50,9 +51,6 @@ public class DiscordButtonListener extends ListenerAdapter {
             return;
         }
 
-        //TODO: monitor this, as it might take more than 3 seconds
-//        event.deferEdit().queue();
-
         switch (actionType) {
             case ANIME_ITEM_DOWNLOAD -> {
                 discordActionService.publishButtonDownload(itemId);
@@ -61,13 +59,14 @@ public class DiscordButtonListener extends ListenerAdapter {
                         .addField("Downloaded started on", LocalDateTime.now().toString(), true)
                         .build();
 
-                event.editMessageEmbeds(editedEmbed).queue();
+//                event.editMessageEmbeds(editedEmbed).queue();
+                event.getHook().editOriginalEmbeds(editedEmbed).queue();
             }
 
             case ANIME_ITEM_SET_AS_INTERESTING -> {
                 discordActionService.publishButtonSetAsInteresting(itemId);
 
-                event.reply(String.format("Set %s as interesting. Its now going to appear in the interesting series channel.", itemId))
+                event.getHook().sendMessage(String.format("Set %s as interesting. Its now going to appear in the interesting series channel.", itemId))
                         .setEphemeral(true)
                         .queue();
             }
@@ -80,8 +79,8 @@ public class DiscordButtonListener extends ListenerAdapter {
 
                     MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, false);
 
-                    event.editMessageEmbeds(newEmbed).queue();
-                }, () -> event.reply(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
+                    event.getHook().editOriginalEmbeds(newEmbed).queue();
+                }, () -> event.getHook().sendMessage(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
                         .setEphemeral(true)
                         .queue());
             }
@@ -94,8 +93,8 @@ public class DiscordButtonListener extends ListenerAdapter {
 
                     MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, false);
 
-                    event.editMessageEmbeds(newEmbed).queue();
-                }, () -> event.reply(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
+                    event.getHook().editOriginalEmbeds(newEmbed).queue();
+                }, () -> event.getHook().sendMessage(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
                         .setEphemeral(true)
                         .queue());
             }
@@ -108,8 +107,8 @@ public class DiscordButtonListener extends ListenerAdapter {
 
                     MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, false);
 
-                    event.editMessageEmbeds(newEmbed).queue();
-                }, () -> event.reply(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
+                    event.getHook().editOriginalEmbeds(newEmbed).queue();
+                }, () -> event.getHook().sendMessage(String.format("Series with id %d doesnt exist, how did you interact with it???",  itemId))
                         .setEphemeral(true)
                         .queue());
             }
@@ -128,7 +127,7 @@ public class DiscordButtonListener extends ListenerAdapter {
 
                 MessageEmbed newEmbed = WatchpostEventListener.createNewShowSeriesEmbed(updatedDetails, true);
 
-                event.editMessageEmbeds(newEmbed)
+                event.getHook().editOriginalEmbeds(newEmbed)
                         .setComponents(updatedComponents)
                         .queue();
             }
