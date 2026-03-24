@@ -7,13 +7,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "rss_feeds", schema = "watchpost")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class RssFeed {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     private String rssReaderName;

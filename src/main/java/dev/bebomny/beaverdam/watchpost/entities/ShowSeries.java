@@ -1,22 +1,22 @@
 package dev.bebomny.beaverdam.watchpost.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "show_series", schema = "watchpost")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ShowSeries {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     private String seriesName;

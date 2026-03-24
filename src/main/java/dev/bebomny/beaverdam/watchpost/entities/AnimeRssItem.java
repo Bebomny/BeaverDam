@@ -6,13 +6,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "anime_rss_items", schema = "watchpost")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AnimeRssItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

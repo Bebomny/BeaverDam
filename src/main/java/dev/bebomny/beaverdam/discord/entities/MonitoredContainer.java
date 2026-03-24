@@ -3,20 +3,20 @@ package dev.bebomny.beaverdam.discord.entities;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "monitored_containers", schema = "discord")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class MonitoredContainer {
 
     @Id
+    @EqualsAndHashCode.Include
     private String containerName;
 
     private String formatterType;

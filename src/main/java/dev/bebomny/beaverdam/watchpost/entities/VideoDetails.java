@@ -5,13 +5,16 @@ import lombok.*;
 
 @Entity
 @Table(name = "video_details", schema = "watchpost")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class VideoDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)

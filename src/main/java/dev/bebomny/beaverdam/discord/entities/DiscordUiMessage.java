@@ -5,13 +5,16 @@ import lombok.*;
 
 @Entity
 @Table(name = "ui_messages", schema = "discord")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class DiscordUiMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     private Long discordMessageId;

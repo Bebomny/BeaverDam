@@ -3,20 +3,20 @@ package dev.bebomny.beaverdam.dockerintegration.entities;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "container_configs", schema = "docker")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class DockerContainerConfig {
 
     @Id
+    @EqualsAndHashCode.Include
     private String containerName;
 
     private String commandStrategyId;
