@@ -2,6 +2,11 @@ services:
   postgres-db:
     image: 'postgres:latest'
     container_name: "modulith-dev-db"
+    labels:
+      - "beaverdam.docker.public-address=test.test.test"
+      - "beaverdam.docker.public-version=Vanilla 1.21.11"
+      - "beaverdam.docker.message=Use the `/whitelist` command to add yourself to the server's whitelist."
+
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}

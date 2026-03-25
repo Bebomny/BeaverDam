@@ -9,4 +9,9 @@ public class FormatHelper {
 
         return String.format("%dh %02dm %02ds", hours, minutes, seconds);
     }
+
+    public static String formatName(String name) {
+        if (name == null || name.isEmpty()) return name;
+        return name.substring(0, 1).toUpperCase() + name.substring(1).replace("_", " ");
+    }
 }
