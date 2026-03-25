@@ -1,4 +1,4 @@
-package dev.bebomny.beaverdam.common.helpers;
+package dev.bebomny.beaverdam.common.events.types;
 
 public enum ShowSeriesParam {
     IGNORED,

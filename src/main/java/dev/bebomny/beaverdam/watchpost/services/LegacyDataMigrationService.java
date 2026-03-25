@@ -54,7 +54,7 @@ public class LegacyDataMigrationService {
     @EventListener(ApplicationReadyEvent.class)
     public void migrateLegacyData() {
         if (animeItemRepository.count() > 0) {
-            log.atInfo().log("Migration Skipped: New tables already contain data");
+            log.atInfo().log("Anime Items Migration Skipped: New tables already contain data");
             migrationFinished.set(true);
             return;
         }

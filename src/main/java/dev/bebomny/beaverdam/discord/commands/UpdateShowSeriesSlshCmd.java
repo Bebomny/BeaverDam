@@ -3,7 +3,7 @@ package dev.bebomny.beaverdam.discord.commands;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.helpers.ShowSeriesParam;
+import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.discord.DiscordActionService;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import lombok.extern.slf4j.Slf4j;

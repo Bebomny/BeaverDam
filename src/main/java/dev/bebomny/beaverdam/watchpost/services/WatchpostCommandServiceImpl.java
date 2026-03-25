@@ -2,7 +2,7 @@ package dev.bebomny.beaverdam.watchpost.services;
 
 import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.helpers.ShowSeriesParam;
+import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
