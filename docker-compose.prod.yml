@@ -1,0 +1,40 @@
+services:
+  beaverdam:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: beaverdam:latest
+    container_name: beaverdam
+    restart: unless-stopped
+    mem_limit: 4g
+    env_file:
+      - .env
+
+    depends_on:
+      - beaverdam-db
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./beaverdam-data:/data
+    environment:
+      TZ: "Europe/Warsaw"
+#      SPRING_PROFILES_ACTIVE: "prod"
+
+  beaverdam-db:
+    image: 'postgres:latest'
+    container_name: "beaverdam-db"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./beaverdam-data/postgres-db:/var/lib/postgresql
+    ports:
+      - "5434:5432"
+
+
+networks:
+  vpn-connection:
+    external: true
+    driver: bridge
+    name: vpn-connection

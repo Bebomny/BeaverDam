@@ -1,7 +1,13 @@
+import org.hidetake.groovy.ssh.core.Remote
+import org.hidetake.groovy.ssh.core.RunHandler
+import org.hidetake.groovy.ssh.session.SessionHandler
+import java.nio.file.Files
+
 plugins {
     java
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.hidetake.ssh") version "2.12.0"
 }
 
 group = "dev.bebomny"
@@ -70,4 +76,51 @@ dependencyManagement {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+val watermelonVmServer = Remote(
+    mutableMapOf<String, Any>(
+        "host" to "watermelon-vm",
+        "user" to "luka",
+        "identity" to File("${System.getProperties()["user.home"]}/.ssh/id_rsa")
+    )
+)
+
+tasks.register("deployToServer") {
+    group = "deployment"
+    description = "Builds the app, transfers files to the server, and runs docker compose"
+
+    dependsOn("bootJar")
+
+    doLast {
+        ssh.run(delegateClosureOf<RunHandler> {
+            session(
+                watermelonVmServer,
+                delegateClosureOf<SessionHandler> {
+                    val targetDir = "./beaverdam/"
+                    println("Connected to server. Creating directories...")
+                    execute("mkdir -p $targetDir")
+
+                    println("Uploading Spring Boot jar...")
+                    val jarFile = tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar").get().archiveFile.get().asFile
+
+                    put(hashMapOf(
+                        "from" to jarFile,
+                        "into" to "$targetDir/app.jar"
+                    ))
+
+                    println("Uploading Production Docker/Compose files...")
+                    put(hashMapOf("from" to file("docker-compose.prod.yml"), "into" to "$targetDir/docker-compose.yml"))
+                    put(hashMapOf("from" to file(".env.prod"), "into" to "$targetDir/.env"))
+                    put(hashMapOf("from" to file("Dockerfile"), "into" to "$targetDir/Dockerfile"))
+
+                    println("Restarting Docker containers...")
+                    execute("cd $targetDir && docker compose down")
+                    execute("cd $targetDir && docker compose up -d")
+
+                    println("Deployment successful")
+                }
+            )
+        })
+    }
 }
