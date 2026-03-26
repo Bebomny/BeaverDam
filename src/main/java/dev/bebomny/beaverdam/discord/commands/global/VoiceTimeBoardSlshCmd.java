@@ -32,11 +32,9 @@ public class VoiceTimeBoardSlshCmd extends SlashCommand implements GlobalCommand
         Long guildId = Objects.requireNonNull(event.getGuild()).getIdLong();
         String guildName = event.getGuild().getName();
 
-//        List<DiscordVoiceTimeResult> results = analyticsQueryApi.getTopVoiceTimeUsers(guildId, 15, false);
-
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Color.CYAN)
-                .setTitle(guildName + "'s Voice Time")
+                .setTitle(guildName + "'s Voice Times")
                 .setFooter("holi moli");
 
 
@@ -44,10 +42,10 @@ public class VoiceTimeBoardSlshCmd extends SlashCommand implements GlobalCommand
         analyticsQueryApi.getTopVoiceTimeUsers(guildId, 15, false)
                 .forEach(user ->
                         sb.append(user.username())
-                                .append(" ")
+                                .append("     ")
                                 .append(FormatHelper.formatSecondsToTimeString(user.totalSecondsSpent()))
                                 .append('\n'));
-        embedBuilder.addField(guildId.toString(), sb.toString(), false);
+        embedBuilder.addField("Top 15", sb.toString(), false);
 
 
         event.getHook().sendMessageEmbeds(embedBuilder.build()).queue();
