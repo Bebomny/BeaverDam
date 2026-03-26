@@ -1,7 +1,8 @@
-package dev.bebomny.beaverdam.discord.commands;
+package dev.bebomny.beaverdam.discord.commands.management;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import dev.bebomny.beaverdam.discord.commands.ManagementCommand;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;

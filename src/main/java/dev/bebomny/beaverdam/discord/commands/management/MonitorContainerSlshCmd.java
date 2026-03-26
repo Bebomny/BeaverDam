@@ -1,7 +1,8 @@
-package dev.bebomny.beaverdam.discord.commands;
+package dev.bebomny.beaverdam.discord.commands.management;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import dev.bebomny.beaverdam.discord.commands.ManagementCommand;
 import dev.bebomny.beaverdam.discord.entities.MonitoredContainer;
 import dev.bebomny.beaverdam.discord.listeners.DiscordConsoleListener;
 import dev.bebomny.beaverdam.discord.repos.MonitoredContainerRepository;
@@ -19,7 +20,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class MonitorContainerSlshCmd extends SlashCommand implements ManagementCommand{
+public class MonitorContainerSlshCmd extends SlashCommand implements ManagementCommand {
 
     private final MonitoredContainerRepository monitoredContainerRepository;
     private final DockerCommandApi dockerCommandApi;

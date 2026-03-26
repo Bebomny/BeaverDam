@@ -1,9 +1,10 @@
-package dev.bebomny.beaverdam.discord.commands;
+package dev.bebomny.beaverdam.discord.commands.global;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.analytics.AnalyticsQueryApi;
 import dev.bebomny.beaverdam.common.helpers.FormatHelper;
+import dev.bebomny.beaverdam.discord.commands.GlobalCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import org.springframework.stereotype.Component;

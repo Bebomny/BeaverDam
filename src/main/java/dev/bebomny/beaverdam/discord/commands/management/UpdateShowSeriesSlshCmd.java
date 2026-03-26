@@ -1,10 +1,12 @@
-package dev.bebomny.beaverdam.discord.commands;
+package dev.bebomny.beaverdam.discord.commands.management;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.discord.DiscordActionService;
+import dev.bebomny.beaverdam.discord.commands.AutoCompletable;
+import dev.bebomny.beaverdam.discord.commands.ManagementCommand;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
