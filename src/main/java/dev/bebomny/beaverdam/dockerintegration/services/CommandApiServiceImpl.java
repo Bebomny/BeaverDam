@@ -60,18 +60,18 @@ public class CommandApiServiceImpl implements DockerCommandApi {
     }
 
     @Override
-    public List<DockerPublishedServer> getPublishedServers() {
+    public List<DockerPublishedServer> getPublishedServers(boolean showAll) {
         final String ADDRESS_LABEL = "beaverdam.docker.public-address";
         final String VERSION_LABEL = "beaverdam.docker.public-version";
         final String ADDITIONAL_MESSAGE = "beaverdam.docker.message";
-        final String EXCLUDE_LABEL = "beaverdam.docker.exclude";
+        final String EXCLUDE_LABEL = "beaverdam.docker.public-exclude"; //This allows for some server to be hidden from the public only visible to me for status updates
 
         List<Container> containers = dockerClient.listContainersCmd()
                 .withShowAll(true)
                 .exec();
 
         return containers.stream()
-                .filter(c -> !c.getLabels().containsKey(EXCLUDE_LABEL))
+                .filter(c -> showAll || !c.getLabels().containsKey(EXCLUDE_LABEL))
                 .filter(c -> c.getLabels() != null && c.getLabels().containsKey(ADDRESS_LABEL) && c.getLabels().containsKey(VERSION_LABEL))
                 .map(c -> {
                     String name = c.getNames()[0].substring(1);

@@ -30,7 +30,7 @@ public class WhitelistSlshCmd extends SlashCommand implements GlobalCommand {
 
         this.dockerCommandApi = dockerCommandApi;
 
-        List<Command.Choice> serverChoices = dockerCommandApi.getPublishedServers()
+        List<Command.Choice> serverChoices = dockerCommandApi.getPublishedServers(false)
                 .stream()
                 .map(DockerPublishedServer::containerName)
                 .map(s -> new Command.Choice(s, s))
