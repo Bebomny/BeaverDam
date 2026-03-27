@@ -1,9 +1,11 @@
 package dev.bebomny.beaverdam.discord.formatters;
 
 import dev.bebomny.beaverdam.common.events.DockerContainerLogEvent;
+import org.springframework.stereotype.Component;
 
 import static dev.bebomny.beaverdam.common.helpers.AnsiColorUtils.*;
 
+@Component
 public class StandardMcServerLogFormatter implements DiscordLogFormatter {
 
     @Override
