@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.discord.DiscordMessagingService;
+import dev.bebomny.beaverdam.discord.services.DiscordMessagingService;
 import dev.bebomny.beaverdam.discord.TargetChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

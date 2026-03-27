@@ -6,7 +6,7 @@ import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
 import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
 import dev.bebomny.beaverdam.common.helpers.FileFormatter;
 import dev.bebomny.beaverdam.discord.ButtonActionType;
-import dev.bebomny.beaverdam.discord.DiscordMessagingService;
+import dev.bebomny.beaverdam.discord.services.DiscordMessagingService;
 import dev.bebomny.beaverdam.discord.TargetChannel;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;
 import lombok.RequiredArgsConstructor;

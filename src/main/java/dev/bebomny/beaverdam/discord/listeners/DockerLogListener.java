@@ -1,7 +1,7 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
 import dev.bebomny.beaverdam.common.events.DockerContainerLogEvent;
-import dev.bebomny.beaverdam.discord.DiscordMessagingService;
+import dev.bebomny.beaverdam.discord.services.DiscordLogBatchingService;
 import dev.bebomny.beaverdam.discord.formatters.DiscordLogFormatter;
 import dev.bebomny.beaverdam.discord.formatters.FormatterRegistry;
 import dev.bebomny.beaverdam.discord.repos.MonitoredContainerRepository;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 public class DockerLogListener {
 
     private final MonitoredContainerRepository containerRepository;
-    private final DiscordMessagingService messagingService;
     private final FormatterRegistry formatterRegistry;
+    private final DiscordLogBatchingService logBatchingService;
 
     @EventListener
     @Async
@@ -26,7 +26,8 @@ public class DockerLogListener {
 
             String formattedMessage = formatter.formatLog(event);
 
-            messagingService.sendTextMessage(config.getDiscordChannelId(), formattedMessage);
+            logBatchingService.queueLog(config.getDiscordChannelId(), formattedMessage);
+//            messagingService.sendTextMessage(config.getDiscordChannelId(), formattedMessage);
         });
     }
 }

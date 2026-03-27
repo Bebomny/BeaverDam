@@ -1,4 +1,4 @@
-package dev.bebomny.beaverdam.discord;
+package dev.bebomny.beaverdam.discord.services;
 
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.events.AnimeItemDisplayedEvent;

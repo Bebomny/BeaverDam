@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
-import dev.bebomny.beaverdam.discord.DiscordActionService;
+import dev.bebomny.beaverdam.discord.services.DiscordActionService;
 import dev.bebomny.beaverdam.discord.commands.AutoCompletable;
 import dev.bebomny.beaverdam.discord.commands.ManagementCommand;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
