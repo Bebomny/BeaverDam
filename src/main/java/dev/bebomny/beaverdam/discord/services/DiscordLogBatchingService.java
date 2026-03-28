@@ -1,6 +1,7 @@
 package dev.bebomny.beaverdam.discord.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiscordLogBatchingService {
@@ -31,13 +33,17 @@ public class DiscordLogBatchingService {
             String logLine;
 
             while ((logLine = queue.poll()) != null) {
+                if (logLine.length() > 1900) {
+                    logLine = logLine.substring(0, 1885) + "... [TRUNCATED]";
+                }
+
                 // Limit for bots is 2000 chars per message
-                if (currentBatch.length() + logLine.length() > 1900) {
+                if (currentBatch.length() + logLine.length() + 1> 1900) {
                     messagingService.sendTextMessage(channelId, currentBatch.toString());
                     currentBatch.setLength(0);
                 }
 
-                currentBatch.append(logLine).append("\n");
+                currentBatch.append(logLine);//.append("\n");
             }
 
             if (!currentBatch.isEmpty()) {

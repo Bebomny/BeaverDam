@@ -78,7 +78,7 @@ public class DockerLogMonitorService {
                     .withStdOut(true)
                     .withStdErr(true)
                     .withFollowStream(true)
-                    .withTail(50)
+                    .withTail(20)
                     .exec(new ResultCallback.Adapter<Frame>() {
                         @Override
                         public void onNext(Frame frame) {

@@ -116,7 +116,7 @@ tasks.register("deployToServer") {
 
                     println("Restarting Docker containers...")
                     execute("cd $targetDir && docker compose down")
-                    execute("cd $targetDir && docker compose up -d")
+                    execute("cd $targetDir && docker compose up -d --build")
 
                     println("Deployment successful")
                 }
