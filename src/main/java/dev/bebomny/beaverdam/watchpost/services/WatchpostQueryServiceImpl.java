@@ -1,13 +1,15 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
+import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.DownloadDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesSearchResult;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
+import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,5 +90,60 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                         animeItem.getEpisode(),
                         animeItem.getShowSeries().getCustomShareRatio()
                 ));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AnimeItemDetailsResult> getLatestAnimeItems(boolean interestingOnly, Pageable pageable) {
+        Page<AnimeRssItem> entityPage = animeItemRepository.findAnimeItemsWithDetails(
+                interestingOnly,
+                PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "localSaveDate"))
+                ));
+
+        return entityPage.map(this::mapAnimeItemToResult);
+    }
+
+    private AnimeItemDetailsResult mapAnimeItemToResult(AnimeRssItem item) {
+        var builder = AnimeItemDetailsResult.builder()
+                .animeItemId(item.getId())
+                .rawItemName(item.getRawItemName())
+                .seriesName(item.getSeriesName())
+                .episode(item.getEpisode())
+                .fileLink(item.getFileLink())
+                .fileSizeBytes(item.getFileSize())
+                .videoCategory(item.getVideoCategory())
+                .pubDate(item.getPubDate())
+                .localSaveDate(item.getLocalSaveDate())
+                .downloaded(item.getDownloaded());
+
+        if (item.getRssFeed() != null) {
+            builder.sourceFeed(item.getRssFeed().getFeedName());
+        }
+
+        if (item.getVideoDetails() != null) {
+            builder.resolution(item.getVideoDetails().getResolution())
+                    .subtitles(item.getVideoDetails().getSubtitles())
+                    .videoSource(item.getVideoDetails().getSource())
+                    .sourceType(item.getVideoDetails().getSourceType())
+                    .videoType(item.getVideoDetails().getVideoType())
+                    .audioType(item.getVideoDetails().getAudioType());
+        }
+
+        if (item.getShowSeries() != null) {
+            builder.showSeriesId(item.getShowSeries().getId())
+                    .isInteresting(Boolean.TRUE.equals(item.getShowSeries().getIsInteresting()))
+                    .isIgnored(Boolean.TRUE.equals(item.getShowSeries().getIsIgnored()))
+                    .autoDownload(Boolean.TRUE.equals(item.getShowSeries().getAutoDownload()))
+                    .animeOnlineId(item.getShowSeries().getOnlineId())
+                    .malLink(item.getShowSeries().getMalLink());
+        }
+
+        //TODO: Placeholder for when data is going to get grabbed from mal api
+        builder.coverImageUrl(null);
+
+        return builder.build();
     }
 }

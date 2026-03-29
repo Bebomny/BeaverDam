@@ -38,7 +38,7 @@ public class DiscordLogBatchingService {
                 }
 
                 // Limit for bots is 2000 chars per message
-                if (currentBatch.length() + logLine.length() + 1> 1900) {
+                if (currentBatch.length() + logLine.length() + 1 > 1900) {
                     messagingService.sendTextMessage(channelId, currentBatch.toString());
                     currentBatch.setLength(0);
                 }
