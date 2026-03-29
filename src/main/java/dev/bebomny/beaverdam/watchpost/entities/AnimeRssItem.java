@@ -26,6 +26,9 @@ public class AnimeRssItem {
     @JoinColumn(name = "show_series_id")
     private ShowSeries showSeries;
 
+    @OneToOne(mappedBy = "animeRssItem", fetch = FetchType.LAZY)
+    private VideoDetails videoDetails;
+
     private Long internalFileId;
 
     @Column(length = 1000)
