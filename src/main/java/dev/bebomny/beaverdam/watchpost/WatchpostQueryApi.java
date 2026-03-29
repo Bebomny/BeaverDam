@@ -1,8 +1,11 @@
 package dev.bebomny.beaverdam.watchpost;
 
+import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.DownloadDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesSearchResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +22,6 @@ public interface WatchpostQueryApi {
     Optional<ShowSeriesStateDetailsResult> getSeriesDetailsById(Long id);
 
     Optional<DownloadDetailsResult> getDownloadDetailsForAnimeItemById(Long animeItemId);
+
+    Page<AnimeItemDetailsResult> getLatestAnimeItems(boolean interestingOnly, Pageable pageable);
 }
