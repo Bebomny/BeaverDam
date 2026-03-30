@@ -46,4 +46,6 @@ public interface DiscordVoiceStateRepository extends JpaRepository<DiscordVoiceS
     List<DiscordVoiceTimeProjection> getVoiceTimesFromRawStates(@Param("guildId") Long guildId, @Param("limit") int limit);
 
     Optional<DiscordVoiceState> findTopByUserIdAndGuildIdAndEventTypeInOrderByTimestampDesc(Long userId, Long guildId, Collection<VoiceEventType> eventTypes);
+
+    List<DiscordVoiceState> findAllByGuildIdAndStateValueTrue(Long guildId);
 }

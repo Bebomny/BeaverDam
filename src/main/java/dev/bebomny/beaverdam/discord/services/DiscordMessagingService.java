@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.springframework.beans.factory.annotation.Value;
@@ -118,5 +119,19 @@ public class DiscordMessagingService {
             log.atError().log("Could not resolve text channel with id {}", channelId);
         }
         return textChannel;
+    }
+
+    /**
+     * Resolves a Guild based on the guildId
+     * @param guildId the id of the guild to resolve
+     * @return Guild instance or throws `IllegalArgumentException` when the resolution fails
+     */
+    public Guild resolveGuild(Long guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        if (guild == null) {
+//            log.atError().log("Could not resolve guild with id {}", guildId);
+//            throw new IllegalArgumentException(String.format("Could not resolve guild with id %s", guildId));
+        }
+        return guild;
     }
 }
