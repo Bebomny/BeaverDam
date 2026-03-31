@@ -86,11 +86,24 @@ val watermelonVmServer = Remote(
     )
 )
 
+tasks.register<Tar>("packageFrontend") {
+    group = "build"
+    description = "Packages the SvelteKit frontend source, excluding node_modules"
+
+    archiveFileName.set("frontend.tar.gz")
+    compression = Compression.GZIP
+    destinationDirectory.set(layout.buildDirectory.dir("distributions"))
+
+    from("frontend") {
+        exclude("node_modules/**", ".svelte-kit/**", "build/**")
+    }
+}
+
 tasks.register("deployToServer") {
     group = "deployment"
     description = "Builds the app, transfers files to the server, and runs docker compose"
 
-    dependsOn("bootJar")
+    dependsOn("bootJar", "packageFrontend")
 
     doLast {
         ssh.run(delegateClosureOf<RunHandler> {
@@ -109,16 +122,51 @@ tasks.register("deployToServer") {
                         "into" to "$targetDir/app.jar"
                     ))
 
+                    println("Uploading Frontend source code...")
+                    val frontendTar = tasks.named<Tar>("packageFrontend").get().archiveFile.get().asFile
+                    put(hashMapOf("from" to frontendTar, "into" to "$targetDir/frontend.tar.gz"))
+
+                    execute("cd $targetDir && mkdir -p frontend && tar -xzf frontend.tar.gz -C frontend && rm frontend.tar.gz")
+
                     println("Uploading Production Docker/Compose files...")
                     put(hashMapOf("from" to file("docker-compose.prod.yml"), "into" to "$targetDir/docker-compose.yml"))
                     put(hashMapOf("from" to file(".env.prod"), "into" to "$targetDir/.env"))
                     put(hashMapOf("from" to file("Dockerfile"), "into" to "$targetDir/Dockerfile"))
 
                     println("Restarting Docker containers...")
-                    execute("cd $targetDir && docker compose down")
+//                    execute("cd $targetDir && docker compose down")
                     execute("cd $targetDir && docker compose up -d --build")
 
                     println("Deployment successful")
+                }
+            )
+        })
+    }
+}
+
+tasks.register("deployFrontend") {
+    group = "deployment"
+    description = "Builds and deploys ONLY the SvelteKit frontend"
+
+    dependsOn("packageFrontend")
+
+    doLast {
+        ssh.run(delegateClosureOf<RunHandler> {
+            session(
+                watermelonVmServer,
+                delegateClosureOf<SessionHandler> {
+                    val targetDir = "./beaverdam/"
+
+                    println("Uploading Frontend source code...")
+                    val frontendTar = tasks.named<Tar>("packageFrontend").get().archiveFile.get().asFile
+                    put(hashMapOf("from" to frontendTar, "into" to "$targetDir/frontend.tar.gz"))
+
+                    execute("cd $targetDir && mkdir -p frontend && tar -xzf frontend.tar.gz -C frontend && rm frontend.tar.gz")
+
+                    println("Rebuilding and restarting the frontend container...")
+                    execute("cd $targetDir && docker compose up -d --build beaverdam-frontend")
+
+                    println("Frontend Deployment successful")
                 }
             )
         })

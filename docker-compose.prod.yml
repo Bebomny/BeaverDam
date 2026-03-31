@@ -9,16 +9,36 @@ services:
     mem_limit: 4g
     env_file:
       - .env
-
     depends_on:
       - beaverdam-db
-
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./beaverdam-data:/data
     environment:
       TZ: "Europe/Warsaw"
 #      SPRING_PROFILES_ACTIVE: "prod"
+    ports:
+      - "${HOST_MACHINE}:8081:8080"
+#    networks:
+#      - default
+#      - vpn-connection
+
+  beaverdam-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: beaverdam-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_URL: "http://beaverdam:8080"
+      TZ: "Europe/Warsaw"
+    depends_on:
+      - beaverdam
+
 
   beaverdam-db:
     image: 'postgres:latest'
@@ -27,10 +47,12 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
     volumes:
       - ./beaverdam-data/postgres-db:/var/lib/postgresql
     ports:
-      - "5434:5432"
+      - "${HOST_MACHINE}:5434:5432"
 
 
 networks:

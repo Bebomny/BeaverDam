@@ -127,6 +127,7 @@
         display: flex;
         align-items: center;
         gap: 1.5rem;
+        padding-left: 1rem;
         padding-bottom: 2rem;
         border-bottom: 1px solid #2d2d3d;
         margin-bottom: 2rem;
