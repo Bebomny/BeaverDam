@@ -67,8 +67,6 @@ public class AnalyticsController {
             @RequestParam(name = "sort", defaultValue = "total") String sortField,
             @RequestParam(name = "limit", defaultValue = "100") int limit) {
 
-        log.atInfo().log("Guild Id {}", guildId);
-
         DiscordMonitoredGuildResult monitoredGuild = discordQueryApi.getMonitoredGuildById(guildId);
         if (monitoredGuild == null) {
             return ResponseEntity.notFound().build();

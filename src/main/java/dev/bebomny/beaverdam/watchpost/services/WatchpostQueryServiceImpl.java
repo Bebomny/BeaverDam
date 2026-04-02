@@ -117,7 +117,8 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                 .videoCategory(item.getVideoCategory())
                 .pubDate(item.getPubDate())
                 .localSaveDate(item.getLocalSaveDate())
-                .downloaded(item.getDownloaded());
+                .downloaded(item.getDownloaded())
+                .downloadedOn(item.getDownloadedOn());
 
         if (item.getRssFeed() != null) {
             builder.sourceFeed(item.getRssFeed().getFeedName());

@@ -31,6 +31,7 @@ public record AnimeItemDetailsResult(
         boolean isIgnored,
         boolean autoDownload,
         boolean downloaded,
+        LocalDateTime downloadedOn,
 
         //Online details
         Long animeOnlineId,
