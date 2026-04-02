@@ -160,10 +160,18 @@
 
                     <div class="info-group-stack">
                         <span class="info-label">ShowSeries Flags</span>
-                        <span class="info-value">Interesting: {selectedAnime.isInteresting || 'Unknown'}</span>
-                        <span class="info-value">Ignored: {selectedAnime.isIgnored || 'Unknown'}</span>
-                        <span class="info-value">AutoDownload: {selectedAnime.autoDownload || 'Unknown'}</span>
+                        <span class="info-value">Interesting: {selectedAnime.isInteresting}</span>
+                        <span class="info-value">Ignored: {selectedAnime.isIgnored}</span>
+                        <span class="info-value">AutoDownload: {selectedAnime.autoDownload}</span>
                         <span class="info-value">Downloaded: {formatDate(selectedAnime.downloadedOn) || 'Not yet downloaded'}</span>
+                    </div>
+
+                    <div class="info-group-stack">
+                        <span class="info-label">Online Id Details</span>
+                        <span class="info-value">Online Id: {selectedAnime.animeOnlineId || 'Unknown'}</span>
+                        <span class="info-value">MAL Link: {selectedAnime.malLink || 'Unknown'}</span>
+                        <span class="info-value">Cover url: {selectedAnime.coverImageUrl || 'Unknown'}</span>
+                        <span class="info-value">Localized Name: {selectedAnime.localizedName || 'Unknown'}</span>
                     </div>
                 </div>
 
@@ -182,6 +190,15 @@
 {/if}
 
 <style>
+    /*Transfer to a global file later on*/
+    :root {
+        --text-color: #0a0e0a;
+        --bg-color: #f8faf8;
+        --primary-color: #63a769;
+        --secondary-color: #9dcea1;
+        --accent-color: #74c27b;
+    }
+
     main {
         padding: 2rem;
         max-width: 90%;
@@ -365,7 +382,7 @@
     }
 
     .info-btn {
-        background: #1f67ed;
+        background: #3182ce;
         color: #fff;
         text-decoration: none;
         padding: 0.3rem 0.6rem;
@@ -376,7 +393,7 @@
     }
 
     .info-btn:hover {
-        background: #124ab3;
+        background: #1f67ed;
     }
 
     .empty-state {
@@ -481,6 +498,7 @@
     .info-value {
         font-size: 1rem;
         color: #e2eae0;
+        text-wrap: wrap;
     }
 
     .modal-image-container {
