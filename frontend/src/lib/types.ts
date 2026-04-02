@@ -37,3 +37,36 @@ export interface MonitoredGuildResult {
     guildName: string;
     iconUrl: string;
 }
+
+//Watchpost
+export interface AnimeItemDetailsResult {
+    animeItemId: string;
+    rawItemName: string;
+    seriesName: string;
+    episode: string;
+    sourceFeed: string;
+    fileLink: string;
+    pubDate: string;
+    localSaveTime: string;
+
+    resolution: string;
+    subtitles: string;
+    fileSizeBytes: number;
+    videoCategory: string;
+    videoSource: string;
+    sourceType: string;
+    videoType: string;
+    audioType: string;
+
+    showSeriesId: string;
+    isInteresting: boolean;
+    isIgnored: boolean;
+    autoDownload: boolean;
+    downloaded: boolean;
+    downloadedOn: string;
+
+    animeOnlineId: string;
+    malLink: string;
+    coverImageUrl: string;
+    localizedName: string;
+}
