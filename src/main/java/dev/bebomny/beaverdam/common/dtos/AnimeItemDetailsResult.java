@@ -37,6 +37,9 @@ public record AnimeItemDetailsResult(
         Long animeOnlineId,
         String malLink,
         String coverImageUrl,
-        String localizedName
+        String localizedName,
+        String synopsis,
+        String genres,
+        String status
 ) {
 }

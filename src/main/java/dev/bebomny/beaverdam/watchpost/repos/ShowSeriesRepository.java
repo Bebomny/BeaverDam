@@ -22,4 +22,7 @@ public interface ShowSeriesRepository extends JpaRepository<ShowSeries, Long> {
             "WHERE LOWER(s.seriesName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "ORDER BY LOCATE(LOWER(:search), LOWER(s.seriesName)) ASC, LENGTH(s.seriesName) ASC")
     List<ShowSeries> findBestMatchSeries(@Param("search") String search, Limit limit);
+
+    @Query("SELECT s FROM ShowSeries s WHERE NOT EXISTS (SELECT 1 FROM ShowMetadata m WHERE m.showSeries = s)")
+    List<ShowSeries> findSeriesWithoutMetadata();
 }

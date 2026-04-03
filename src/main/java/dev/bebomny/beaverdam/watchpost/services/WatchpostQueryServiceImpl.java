@@ -140,10 +140,17 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                     .autoDownload(Boolean.TRUE.equals(item.getShowSeries().getAutoDownload()))
                     .animeOnlineId(item.getShowSeries().getOnlineId())
                     .malLink(item.getShowSeries().getMalLink());
-        }
 
-        //TODO: Placeholder for when data is going to get grabbed from mal api
-        builder.coverImageUrl(null);
+            if (item.getShowSeries().getMetadata() != null) {
+                var metadata = item.getShowSeries().getMetadata();
+                builder.coverImageUrl(metadata.getCoverImageUrl())
+                        .localizedName(metadata.getLocalizedName())
+                        .synopsis(metadata.getSynopsis())
+                        .genres(metadata.getGenres())
+                        .status(metadata.getStatus())
+                        .animeOnlineId(metadata.getAnilistId());
+            }
+        }
 
         return builder.build();
     }
