@@ -19,6 +19,9 @@ public class ShowSeries {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @OneToOne(mappedBy = "showSeries", cascade = CascadeType.ALL)
+    private ShowMetadata metadata;
+
     private String seriesName;
     @Column(unique = true)
     private Long onlineId;

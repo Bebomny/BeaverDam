@@ -23,6 +23,7 @@ public interface AnimeRssItemRepository extends JpaRepository<AnimeRssItem, Long
             SELECT a FROM AnimeRssItem a
             LEFT JOIN FETCH a.videoDetails
             LEFT JOIN FETCH a.showSeries s
+            LEFT JOIN FETCH s.metadata
             LEFT JOIN FETCH a.rssFeed
             WHERE (:interestingOnly = false OR s.isInteresting = true)
             """,

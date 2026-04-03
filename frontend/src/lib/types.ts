@@ -69,4 +69,7 @@ export interface AnimeItemDetailsResult {
     malLink: string;
     coverImageUrl: string;
     localizedName: string;
+    synopsis: string;
+    genres: string;
+    status: string;
 }
