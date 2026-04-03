@@ -21,6 +21,12 @@
         const date = new Date(dateString);
         return date.toLocaleDateString(undefined, {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'});
     }
+
+    function containSubs(item: AnimeItemDetailsResult, subsToCheck: string) {
+        if (!item) return false;
+        if (!subsToCheck) return item.subtitles.includes('us');
+        return item.subtitles.includes(subsToCheck);
+    }
 </script>
 
 <main>
@@ -52,6 +58,9 @@
                             {/if}
                             {#if item.videoSource}
                                 <span class="tag tag-source">{item.videoSource}</span>
+                            {/if}
+                            {#if !containSubs(item, 'us')}
+                                <span class="tag tag-no-subs">No EN Subs</span>
                             {/if}
                         </div>
                     </div>
@@ -114,6 +123,11 @@
 
             <div class="modal-body">
                 <div class="modal-data">
+                    <div class="info-group">
+                        <span class="info-label">Item Name</span>
+                        <span class="info-value">{selectedAnime.seriesName || 'Unknown'}</span>
+                    </div>
+
                     <div class="info-group">
                         <span class="info-label">Episode</span>
                         <span class="info-value">{selectedAnime.episode || 'N/A'}</span>
@@ -183,6 +197,20 @@
                             <span>{(selectedAnime.seriesName || selectedAnime.rawItemName || '?').charAt(0)}</span>
                         </div>
                     {/if}
+
+                    <div class="info-group-stack">
+                        <span class="info-label">Status</span>
+                        <span class="info-value">{selectedAnime.status || 'Unknown'}</span>
+                    </div>
+
+                    <div class="info-group-stack">
+                        <span class="info-label">Genres</span>
+                        <span class="info-value">{selectedAnime.genres || 'Unknown'}</span>
+                    </div>
+
+                    <div class="info-group">
+                        <span class="info-value">{selectedAnime.synopsis || 'Unknown'}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -248,10 +276,10 @@
 
     .card-info-container {
         width: 100%;
-        padding: 0.5rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        padding: 0.5rem 0.5rem 0;
     }
 
     .series-title {
@@ -285,15 +313,20 @@
     .tags-container {
         color: #fff;
         align-self: flex-start;
+        display: flex;
+        align-content: flex-start;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.2rem;
     }
 
     .card-image-container {
         position: relative;
-        padding-inline: 1rem;
-        padding-top: 0.4rem;
-        padding-bottom: 0.4rem;
+        padding-inline: 0.7rem;
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
         width: auto;
-        min-width: 4rem;
+        min-width: 7rem;
         height: auto;
     }
 
@@ -324,6 +357,8 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: 6px;
+
     }
 
     .placeholder-image {
@@ -336,6 +371,7 @@
         font-size: 5rem;
         font-weight: bold;
         color: #0a0a0a20;
+        border-radius: 6px
     }
 
     .tag {
@@ -359,6 +395,11 @@
 
     .tag-source {
         background: #4a5568;
+        color: white;
+    }
+
+    .tag-no-subs {
+        background: #ef4444;
         color: white;
     }
 
@@ -502,11 +543,19 @@
     }
 
     .modal-image-container {
+        position: relative;
         flex-grow: 1;
         padding: 1rem;
         object-fit: cover;
-        width: 50%;
+        width: 25%;
         height: auto;
-        max-height: 12rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        /*max-height: 12rem;*/
+    }
+
+    .modal-image-container img {
+        border-radius: 3px;
     }
 </style>
