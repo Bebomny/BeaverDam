@@ -2,7 +2,7 @@
     import type {AnimeItemDetailsResult} from "$lib/types";
     import {invalidateAll} from "$app/navigation";
 
-    let { items = [], interestingOnly = false }: { items: AnimeItemDetailsResult[], interestingOnly: boolean } = $props();
+    let {items = [], interestingOnly = false}: { items: AnimeItemDetailsResult[], interestingOnly: boolean } = $props();
 
     let selectedAnime = $state<AnimeItemDetailsResult | null>(null)
 
@@ -17,6 +17,9 @@
             updateMessage = '';
         }
     });
+
+    //Edit metadata
+    let editingMetadata = $state<boolean>(false);
 
     //Auto refreshes
     $effect(() => {
@@ -80,6 +83,27 @@
         updateMessage = 'Updating...';
 
         try {
+            if (selectedAnime.animeOnlineId !== undefined) {
+                try {
+                    const res = await fetch(`/api/watchpost/remove-metadata`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            seriesId: selectedAnime.showSeriesId,
+                        })
+                    });
+
+                    if (!res.ok) {
+                        console.error('Failed to remove metadata. Maybe it doesnt exist yet? Then how did we get here anyway?');
+                        updateMessage = 'Failed to remove metadata. Maybe it doesnt exist yet? Then how did we get here anyway?';
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
             const res = await fetch(`/api/watchpost/update-anilist`, {
                 method: 'POST',
                 headers: {
@@ -106,6 +130,10 @@
         } finally {
             isUpdating = false;
         }
+    }
+
+    function editMetadata() {
+        editingMetadata = true;
     }
 </script>
 
@@ -188,6 +216,28 @@
         >
             <header class="modal-header">
                 <h2>{selectedAnime.localizedName || selectedAnime.seriesName}</h2>
+                {#if selectedAnime.animeOnlineId !== undefined}
+                    {#if editingMetadata}
+                        <div class="anilist-input-row">
+                            <input type="number"
+                                   placeholder="e.g. {selectedAnime.animeOnlineId}"
+                                   bind:value={manualAniListId}
+                                   disabled={isUpdating}
+                                   class="anilist-input"
+                            />
+                            <button class="anilist-submit-btn"
+                                    onclick={manuallyUpdateMetadata}
+                                    disabled={isUpdating || !manualAniListId}>
+                                {isUpdating ? 'Wait...' : 'Submit'}
+                            </button>
+                        </div>
+                    {:else}
+                        <button class="anilist-edit-metadata-btn"
+                                onclick={editMetadata}>
+                            Edit Metadata
+                        </button>
+                    {/if}
+                {/if}
                 <button type="button" class="close-btn" aria-label="Close" tabindex="0"
                         onclick={(e) => {e.stopPropagation(); closeModal();}}>
                     Close
@@ -289,7 +339,6 @@
                             <span class="info-value">{selectedAnime.synopsis || 'Unknown'}</span>
                         </div>
                     {:else}
-                        <!--                        TODO: update metadata button here-->
                         <div class="anilist-override-container">
                             <span class="info-label">Manually Assign AniListId</span>
                             <div class="anilist-input-row">
@@ -563,6 +612,7 @@
         margin: 0;
         color: #fff;
         font-size: 1.25rem;
+        flex-grow: 1;
     }
 
     .close-btn {
@@ -686,5 +736,18 @@
     .anilist-submit-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+
+    .anilist-edit-metadata-btn {
+        background: transparent;
+        border: none;
+        color: #a0aec0;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .anilist-edit-metadata-btn:hover {
+        color: #ef4444;
     }
 </style>

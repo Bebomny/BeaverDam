@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface ShowMetadataRepository extends JpaRepository<ShowMetadata, Long> {
     Optional<ShowMetadata> findByShowSeriesId(Long showSeriesId);
+
+    void removeByShowSeriesId(Long showSeriesId);
 }

@@ -138,4 +138,16 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
         showMetadataRepository.save(metadata);
         log.atInfo().log("Manual anilistId assignment for id {} '{}'. Successful",  aniListId, media.getBestTitle());
     }
+
+    @Override
+    @Transactional
+    public boolean removeMetadata(Long showSeriesId) {
+        if (showMetadataRepository.findByShowSeriesId(showSeriesId).isEmpty()) {
+            log.atWarn().log("Tried to remove metadata for series Id {}, but the metadata is missing!", showSeriesId);
+                return false;
+        }
+        showMetadataRepository.removeByShowSeriesId(showSeriesId);
+        log.atInfo().log("Removed metadata for show ith Id {}", showSeriesId);
+        return true;
+    }
 }

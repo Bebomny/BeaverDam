@@ -27,8 +27,7 @@ public class WatchpostController {
     @GetMapping("/latest")
     public ResponseEntity<List<AnimeItemDetailsResult>> getLatestAnime(
             @RequestParam(name = "interesting", defaultValue = "false") boolean interestingOnly,
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         Page<AnimeItemDetailsResult> page = watchpostQueryApi.getLatestAnimeItems(interestingOnly, pageable);
         return ResponseEntity.ok(page.getContent());
     }
@@ -40,6 +39,17 @@ public class WatchpostController {
             @PathVariable Long anilistId) {
         watchpostCommandApi.manuallyAssignAniListIdAndFetchMetadata(seriesId, anilistId);
         return ResponseEntity.ok().build();
+    }
+
+    @AdminOnly
+    @PostMapping("/series/{seriesId}/metadata/remove")
+    public ResponseEntity<Void> removeMetadata(@PathVariable Long seriesId) {
+        boolean result = watchpostCommandApi.removeMetadata(seriesId);
+
+        if (result) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @AdminOnly
