@@ -1,14 +1,17 @@
 package dev.bebomny.beaverdam.web.controllers;
 
 import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
+import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import dev.bebomny.beaverdam.web.security.AdminOnly;
 import dev.bebomny.beaverdam.web.services.SseNotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -22,6 +25,7 @@ public class WatchpostController {
     private final WatchpostQueryApi watchpostQueryApi;
     private final WatchpostCommandApi watchpostCommandApi;
     private final SseNotificationService sseNotificationService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @AdminOnly
     @GetMapping("/latest")
@@ -31,6 +35,15 @@ public class WatchpostController {
         Page<AnimeItemDetailsResult> page = watchpostQueryApi.getLatestAnimeItems(interestingOnly, pageable);
         return ResponseEntity.ok(page.getContent());
     }
+
+    @AdminOnly
+    @PostMapping("/download/{animeItemId}")
+    @Transactional
+    public ResponseEntity<Void> downloadAnimeItem(@PathVariable Long animeItemId) {
+        applicationEventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(animeItemId, null, "beaverdam"));
+        return ResponseEntity.ok().build();
+    }
+
 
     @AdminOnly
     @PostMapping("/series/{seriesId}/metadata/anilist/{anilistId}")

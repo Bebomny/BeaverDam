@@ -1,6 +1,7 @@
 <script lang="ts">
     import type {AnimeItemDetailsResult} from "$lib/types";
     import {invalidateAll} from "$app/navigation";
+    import {toaster} from "$lib/state/toaster.svelte";
 
     let {items = [], interestingOnly = false}: { items: AnimeItemDetailsResult[], interestingOnly: boolean } = $props();
 
@@ -23,7 +24,7 @@
 
     //Auto refreshes
     $effect(() => {
-        const sse = new EventSource('api/watchpost/stream')
+        const sse = new EventSource('/api/watchpost/stream')
 
         let timer: ReturnType<typeof setTimeout>;
 
@@ -74,6 +75,28 @@
         if (!item) return false;
         if (!subsToCheck) return item.subtitles.includes('us');
         return item.subtitles.includes(subsToCheck);
+    }
+
+    async function downloadAnimeItem(item: AnimeItemDetailsResult) {
+        if (!item) return;
+
+        try {
+            const res = await fetch(`/api/watchpost/download`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    animeItemId: item.animeItemId
+                }),
+            });
+
+            if (res.ok) {
+                toaster.add("Download request sent for " + item.seriesName);
+            }
+        } catch (err) {
+            console.error("Failed to submit download request: ", err);
+        }
     }
 
     async function manuallyUpdateMetadata() {
@@ -184,9 +207,7 @@
                         Info
                     </button>
                     {#if item.fileLink}
-                        <a href={item.fileLink} target="_blank" rel="noopener noreferrer" class="btn download-btn">
-                            Download
-                        </a>
+                        <button type="button" class="btn download-btn" onclick={() => downloadAnimeItem(item)}>Download</button>
                     {/if}
                 </div>
             </div>

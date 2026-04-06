@@ -1,5 +1,24 @@
 <script lang="ts">
+    import ToastContainer from "$lib/components/ToastContainer.svelte";
+    import {toaster} from "$lib/state/toaster.svelte";
+
     let { children, data } = $props();
+
+    $effect(() => {
+        const sse = new EventSource('/api/watchpost/stream')
+
+       sse.onmessage = (event: MessageEvent) => {
+           if (!event.data.startsWith("TOAST")) return;
+
+           const payload = event.data;
+
+           switch (payload) {
+               case "TOAST_DOWNLOAD_SUCCESS": {
+                   toaster.add("Episode download finished!")
+               }
+           }
+       }
+    });
 </script>
 
 <div class="app-layout">
@@ -25,6 +44,8 @@
     <main class="page-content">
         {@render children()}
     </main>
+
+    <ToastContainer />
 </div>
 
 <style>
@@ -32,12 +53,14 @@
         /*V4*/
         --text-color: hsl(120, 17%, 98%);
         --subtext-color: hsl(120, 17%, 98%, 75%);
+        --bg-color: hsl(120, 17%, 5%);
         --bg-color90: hsl(120, 17%, 5%, 90%);
         --bg-color70: hsl(120, 17%, 5%, 70%);
         --primary-color: hsl(125, 28%, 52%);
         --primary-color80: hsl(125, 28%, 52%, 80%);
         --secondary-color: hsl(120, 46%, 75%);
         --secondary-color30: hsl(120, 46%, 75%, 10%);
+        --secondary-color-darker: hsl(120, 14%, 19%);
         --accent-color: hsl(120, 54%, 62%);
 
         --static11: rgba(255, 255, 255, 0.03);
