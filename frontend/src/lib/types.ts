@@ -62,6 +62,7 @@ export interface AnimeItemDetailsResult {
     isInteresting: boolean;
     isIgnored: boolean;
     autoDownload: boolean;
+    customShareRatio: string;
     downloaded: boolean;
     downloadedOn: string;
 

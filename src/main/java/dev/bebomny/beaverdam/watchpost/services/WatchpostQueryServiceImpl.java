@@ -138,7 +138,7 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                     .isInteresting(Boolean.TRUE.equals(item.getShowSeries().getIsInteresting()))
                     .isIgnored(Boolean.TRUE.equals(item.getShowSeries().getIsIgnored()))
                     .autoDownload(Boolean.TRUE.equals(item.getShowSeries().getAutoDownload()))
-                    .animeOnlineId(item.getShowSeries().getOnlineId())
+                    .customShareRatio(item.getShowSeries().getCustomShareRatio())
                     .malLink(item.getShowSeries().getMalLink());
 
             if (item.getShowSeries().getMetadata() != null) {

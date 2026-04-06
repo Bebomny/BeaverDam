@@ -42,7 +42,7 @@ public class MetadataBackfillService {
             String title = series.getSeriesName();
 
             try {
-                Optional<AniListDto.Media> mediaOpt = aniListService.fetchAnimeMetadata(title);
+                Optional<AniListDto.Media> mediaOpt = aniListService.fetchAnimeMetadata(title, series.getId());
 
                 mediaOpt.ifPresent(media -> {
                     ShowMetadata metadata = ShowMetadata.builder()

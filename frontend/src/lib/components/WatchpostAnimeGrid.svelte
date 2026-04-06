@@ -1,9 +1,54 @@
 <script lang="ts">
     import type {AnimeItemDetailsResult} from "$lib/types";
+    import {invalidateAll} from "$app/navigation";
 
-    let {data} = $props();
+    let { items = [], interestingOnly = false }: { items: AnimeItemDetailsResult[], interestingOnly: boolean } = $props();
 
     let selectedAnime = $state<AnimeItemDetailsResult | null>(null)
+
+    //Anilist id assignment
+    let manualAniListId = $state<string>('');
+    let isUpdating = $state<boolean>(false);
+    let updateMessage = $state<string>('');
+
+    $effect(() => {
+        if (selectedAnime) {
+            manualAniListId = '';
+            updateMessage = '';
+        }
+    });
+
+    //Auto refreshes
+    $effect(() => {
+        const sse = new EventSource('api/watchpost/stream')
+
+        let timer: ReturnType<typeof setTimeout>;
+
+        sse.onmessage = (event) => {
+            const isInterestingPing = event.data === 'INTERESTING';
+
+            if (interestingOnly && !isInterestingPing) {
+                return;
+            }
+
+            console.log("Event received: ", event.data);
+            clearInterval(timer);
+
+            timer = setTimeout(() => {
+                console.log("Fetching fresh data...")
+                invalidateAll();
+            }, 500);
+        };
+
+        sse.onerror = (error) => {
+            console.error("SSE connection interrupted. Browser will attempt reconnect.", error);
+        }
+
+        return () => {
+            console.log("Closing SSE connection...");
+            sse.close();
+        };
+    });
 
     function formatBytes(bytes: number | undefined) {
         if (!bytes) return 'Unknown Size';
@@ -27,75 +72,103 @@
         if (!subsToCheck) return item.subtitles.includes('us');
         return item.subtitles.includes(subsToCheck);
     }
+
+    async function manuallyUpdateMetadata() {
+        if (!manualAniListId || !selectedAnime?.showSeriesId) return;
+
+        isUpdating = true;
+        updateMessage = 'Updating...';
+
+        try {
+            const res = await fetch(`/api/watchpost/update-anilist`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    seriesId: selectedAnime.showSeriesId,
+                    anilistId: parseInt(manualAniListId)
+                })
+            });
+
+            if (res.ok) {
+                updateMessage = 'Success. Refresh the page to see changes.';
+                manualAniListId = '';
+
+                await invalidateAll();
+
+                setTimeout(() => closeModal(), 1000);
+            } else {
+                updateMessage = 'Failed to update.'
+            }
+        } catch (err) {
+            updateMessage = 'Failed to update.';
+        } finally {
+            isUpdating = false;
+        }
+    }
 </script>
 
-<main>
-    <header class="page-header">
-        <h1>Latest Releases</h1>
-        <p>The 50 most recent anime episodes captured by Watchpost.</p>
-    </header>
+<div class="anime-grid">
+    {#each items as item}
+        <div class="anime-card">
+            <div class="card-container">
+                <div class="card-info-container">
+                    <h2 class="series-title" title={item.localizedName || item.seriesName || item.rawItemName}>
+                        {item.localizedName || item.seriesName || item.rawItemName}
+                    </h2>
 
-    <div class="anime-grid">
-        {#each data.animeItems as item}
-            <div class="anime-card">
-                <div class="card-container">
-                    <div class="card-info-container">
-                        <h2 class="series-title" title={item.localizedName || item.seriesName || item.rawItemName}>
-                            {item.localizedName || item.seriesName || item.rawItemName}
-                        </h2>
-
-                        <div class="episode-container">
-                            <span class="episode-text">Episode</span>
-                            <span class="episode-value">{item.episode || 'Unknown'}</span>
-                        </div>
-
-                        <div class="tags-container">
-                            {#if item.resolution}
-                                <span class="tag tag-resolution">{item.resolution}</span>
-                            {/if}
-                            {#if item.videoType}
-                                <span class="tag tag-encoding">{item.videoType}</span>
-                            {/if}
-                            {#if item.videoSource}
-                                <span class="tag tag-source">{item.videoSource}</span>
-                            {/if}
-                            {#if !containSubs(item, 'us')}
-                                <span class="tag tag-no-subs">No EN Subs</span>
-                            {/if}
-                        </div>
+                    <div class="episode-container">
+                        <span class="episode-text">Episode</span>
+                        <span class="episode-value">{item.episode || 'Unknown'}</span>
                     </div>
-                    <div class="card-image-container">
-                        {#if item.coverImageUrl}
-                            <img src={item.coverImageUrl} alt={item.seriesName || 'Anime Cover'} loading="lazy"/>
-                        {:else}
-                            <div class="placeholder-image">
-                                <span>{(item.seriesName || item.rawItemName || '?').charAt(0)}</span>
-                            </div>
+
+                    <div class="tags-container">
+                        {#if item.resolution}
+                            <span class="tag tag-resolution">{item.resolution}</span>
+                        {/if}
+                        {#if item.videoType}
+                            <span class="tag tag-encoding">{item.videoType}</span>
+                        {/if}
+                        {#if item.videoSource}
+                            <span class="tag tag-source">{item.videoSource}</span>
+                        {/if}
+                        {#if !containSubs(item, 'us')}
+                            <span class="tag tag-no-subs">No EN Subs</span>
                         {/if}
                     </div>
                 </div>
-                <div class="card-footer">
-                    <span class="date-text">{formatDate(item.pubDate)}</span>
-
-                    <div class="actions">
-                        <button type="button" class="btn info-btn" onclick={() => selectedAnime = item}>
-                            Info
-                        </button>
-                        {#if item.fileLink}
-                            <a href={item.fileLink} target="_blank" rel="noopener noreferrer" class="btn download-btn">
-                                Download
-                            </a>
-                        {/if}
-                    </div>
+                <div class="card-image-container">
+                    {#if item.coverImageUrl}
+                        <img src={item.coverImageUrl} alt={item.seriesName || 'Anime Cover'} loading="lazy"/>
+                    {:else}
+                        <div class="placeholder-image">
+                            <span>{(item.seriesName || item.rawItemName || '?').charAt(0)}</span>
+                        </div>
+                    {/if}
                 </div>
             </div>
-        {:else}
-            <div class="empty-state">
-                <p>No new episodes found in the database</p>
+            <div class="card-footer">
+                <span class="date-text">{formatDate(item.pubDate)}</span>
+
+                <div class="actions">
+                    <button type="button" class="btn info-btn" onclick={() => selectedAnime = item}>
+                        Info
+                    </button>
+                    {#if item.fileLink}
+                        <a href={item.fileLink} target="_blank" rel="noopener noreferrer" class="btn download-btn">
+                            Download
+                        </a>
+                    {/if}
+                </div>
             </div>
-        {/each}
-    </div>
-</main>
+        </div>
+    {:else}
+        <div class="empty-state">
+            <p>No new episodes found in the database</p>
+        </div>
+    {/each}
+</div>
 
 {#if selectedAnime}
     <div
@@ -154,7 +227,8 @@
 
                     <div class="info-group">
                         <span class="info-label">Pub date/Local save date</span>
-                        <span class="info-value">{formatDate(selectedAnime.pubDate) || 'Unknown'} / {formatDate(selectedAnime.localSaveTime) || 'Unknown'}</span>
+                        <span class="info-value">{formatDate(selectedAnime.pubDate) || 'Unknown'}
+                            / {formatDate(selectedAnime.localSaveTime) || 'Unknown'}</span>
                     </div>
 
                     <div class="info-group">
@@ -177,6 +251,7 @@
                         <span class="info-value">Interesting: {selectedAnime.isInteresting}</span>
                         <span class="info-value">Ignored: {selectedAnime.isIgnored}</span>
                         <span class="info-value">AutoDownload: {selectedAnime.autoDownload}</span>
+                        <span class="info-value">CustomShareRatio: {selectedAnime.customShareRatio || 'Default'}</span>
                         <span class="info-value">Downloaded: {formatDate(selectedAnime.downloadedOn) || 'Not yet downloaded'}</span>
                     </div>
 
@@ -191,26 +266,50 @@
 
                 <div class="modal-image-container">
                     {#if selectedAnime.coverImageUrl}
-                        <img src={selectedAnime.coverImageUrl} alt={selectedAnime.seriesName || 'Anime Cover'} loading="lazy"/>
+                        <img src={selectedAnime.coverImageUrl} alt={selectedAnime.seriesName || 'Anime Cover'}
+                             loading="lazy"/>
                     {:else}
                         <div class="placeholder-image">
                             <span>{(selectedAnime.seriesName || selectedAnime.rawItemName || '?').charAt(0)}</span>
                         </div>
                     {/if}
 
-                    <div class="info-group-stack">
-                        <span class="info-label">Status</span>
-                        <span class="info-value">{selectedAnime.status || 'Unknown'}</span>
-                    </div>
+                    {#if selectedAnime.animeOnlineId}
+                        <div class="info-group-stack">
+                            <span class="info-label">Status</span>
+                            <span class="info-value">{selectedAnime.status || 'Unknown'}</span>
+                        </div>
 
-                    <div class="info-group-stack">
-                        <span class="info-label">Genres</span>
-                        <span class="info-value">{selectedAnime.genres || 'Unknown'}</span>
-                    </div>
+                        <div class="info-group-stack">
+                            <span class="info-label">Genres</span>
+                            <span class="info-value">{selectedAnime.genres || 'Unknown'}</span>
+                        </div>
 
-                    <div class="info-group">
-                        <span class="info-value">{selectedAnime.synopsis || 'Unknown'}</span>
-                    </div>
+                        <div class="info-group">
+                            <span class="info-value">{selectedAnime.synopsis || 'Unknown'}</span>
+                        </div>
+                    {:else}
+                        <!--                        TODO: update metadata button here-->
+                        <div class="anilist-override-container">
+                            <span class="info-label">Manually Assign AniListId</span>
+                            <div class="anilist-input-row">
+                                <input type="number"
+                                       placeholder="e.g. 113415"
+                                       bind:value={manualAniListId}
+                                       disabled={isUpdating}
+                                       class="anilist-input"
+                                />
+                                <button class="anilist-submit-btn"
+                                        onclick={manuallyUpdateMetadata}
+                                        disabled={isUpdating || !manualAniListId}>
+                                    {isUpdating ? 'Wait...' : 'Submit'}
+                                </button>
+                            </div>
+                            {#if updateMessage}
+                                <span class="info-label">{updateMessage}</span>
+                            {/if}
+                        </div>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -218,36 +317,6 @@
 {/if}
 
 <style>
-    /*Transfer to a global file later on*/
-    :root {
-        --text-color: #0a0e0a;
-        --bg-color: #f8faf8;
-        --primary-color: #63a769;
-        --secondary-color: #9dcea1;
-        --accent-color: #74c27b;
-    }
-
-    main {
-        padding: 2rem;
-        max-width: 90%;
-        margin: 0 auto;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-
-    .page-header {
-        margin-bottom: 2rem;
-    }
-
-    .page-header h1 {
-        margin: 0 0 0.5rem 0;
-        font-size: 2rem;
-    }
-
-    .page-header p {
-        color: #a0aec0;
-        margin: 0;
-    }
-
     .anime-grid {
         display: flex;
         gap: 0.6rem;
@@ -255,7 +324,10 @@
     }
 
     .anime-card {
-        background: #1a1a24;
+        /*background: #1a1a24;*/
+        /*background: var(--bg-color70);*/
+        /*background: var(--static11);*/
+        background: var(--secondary-color30);
         display: flex;
         flex-direction: column;
         border-radius: 6px;
@@ -284,7 +356,8 @@
 
     .series-title {
         margin: 0;
-        color: #fff;
+        /*color: #fff;*/
+        color: var(--text-color);
         font-size: 1.1rem;
         text-wrap: wrap;
         max-width: 16rem;
@@ -302,16 +375,19 @@
 
     .episode-text {
         font-size: 1rem;
-        color: #a0aec0;
+        /*color: #a0aec0;*/
+        color: var(--subtext-color);
     }
 
     .episode-value {
         font-size: 1rem;
-        color: #e2eae0;
+        /*color: #e2eae0;*/
+        color: var(--text-color);
     }
 
     .tags-container {
-        color: #fff;
+        /*color: #fff;*/
+        color: var(--text-color);
         align-self: flex-start;
         display: flex;
         align-content: flex-start;
@@ -340,18 +416,11 @@
     }
 
     .date-text {
-        color: #fff;
+        /*color: #fff;*/
+        color: var(--text-color);
         align-self: center;
         font-size: 0.8rem;
     }
-
-    /*.card-image-container {*/
-    /*    position: relative;*/
-    /*    order: 1;*/
-    /*    width: auto;*/
-    /*    height: 100%; !* Standard poster aspect ratio *!*/
-    /*    background-color: #121215;*/
-    /*}*/
 
     .card-image-container img {
         width: 100%;
@@ -371,7 +440,7 @@
         font-size: 5rem;
         font-weight: bold;
         color: #0a0a0a20;
-        border-radius: 6px
+        border-radius: 6px;
     }
 
     .tag {
@@ -385,22 +454,26 @@
 
     .tag-resolution {
         background: #3182ce;
-        color: white;
+        /*color: white;*/
+        color: var(--text-color);
     }
 
     .tag-encoding {
         background: #805ad5;
-        color: white;
+        /*color: white;*/
+        color: var(--text-color);
     }
 
     .tag-source {
         background: #4a5568;
-        color: white;
+        /*color: white;*/
+        color: var(--text-color);
     }
 
     .tag-no-subs {
         background: #ef4444;
-        color: white;
+        /*color: white;*/
+        color: var(--text-color);
     }
 
     .btn {
@@ -415,7 +488,8 @@
 
     .download-btn {
         background: #4ade80;
-        color: #000;
+        /*color: #000;*/
+        color: var(--text-color);
     }
 
     .download-btn:hover {
@@ -424,7 +498,8 @@
 
     .info-btn {
         background: #3182ce;
-        color: #fff;
+        /*color: #fff;*/
+        color: var(--text-color);
         text-decoration: none;
         padding: 0.3rem 0.6rem;
         border-radius: 6px;
@@ -441,8 +516,10 @@
         grid-column: 1 / -1;
         text-align: center;
         padding: 4rem;
-        color: #a0aec0;
-        background: #1a1a24;
+        /*color: #a0aec0;*/
+        color: var(--text-color);
+        /*background: #1a1a24;*/
+        background: var(--bg-color70);
         border-radius: 12px;
     }
 
@@ -524,7 +601,7 @@
     .info-group-stack {
         display: flex;
         flex-direction: column;
-        gap:0.25rem;
+        gap: 0.25rem;
         text-wrap: wrap;
     }
 
@@ -545,17 +622,69 @@
     .modal-image-container {
         position: relative;
         flex-grow: 1;
-        padding: 1rem;
-        object-fit: cover;
-        width: 25%;
+        padding: 1rem 1rem 1rem 1rem;
+        width: 30%;
         height: auto;
         display: flex;
         flex-direction: column;
         gap: 0.6rem;
-        /*max-height: 12rem;*/
+        max-width: 20rem;
+        /*max-height: 40vw;*/
     }
 
     .modal-image-container img {
         border-radius: 3px;
+        /*max-height: 12rem;*/
+        object-fit: cover;
+
+
+    }
+
+    .anilist-override-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .anilist-input-row {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .anilist-input {
+        flex-grow: 1;
+        border: 1px solid #2d2d3d;
+        background: transparent;
+        color: #e2e8f0;
+        padding: 0.5rem;
+        border-radius: 3px;
+        font-size: 0.8rem;
+    }
+
+    .anilist-input:focus {
+        outline: none;
+        border-color: #4ade80;
+    }
+
+    .anilist-submit-btn {
+        background: #4ade80;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 3px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .anilist-submit-btn:hover:not(:disabled) {
+        background: #22c55e;
+    }
+
+    .anilist-submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 </style>

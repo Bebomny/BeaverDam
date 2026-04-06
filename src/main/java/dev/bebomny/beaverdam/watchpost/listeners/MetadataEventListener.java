@@ -32,7 +32,7 @@ public class MetadataEventListener {
 
         log.atInfo().log("Fetching AniList metadata for new series[{}]: {}", event.showSeriesId(), title);
 
-        Optional<AniListDto.Media> mediaOpt = aniListService.fetchAnimeMetadata(title);
+        Optional<AniListDto.Media> mediaOpt = aniListService.fetchAnimeMetadata(title, event.showSeriesId());
         mediaOpt.ifPresent(media -> {
             ShowMetadata metadata = ShowMetadata.builder()
                     .showSeries(series)

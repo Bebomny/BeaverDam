@@ -1,13 +1,16 @@
 package dev.bebomny.beaverdam.web.controllers;
 
 import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
+import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import dev.bebomny.beaverdam.web.security.AdminOnly;
+import dev.bebomny.beaverdam.web.services.SseNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -17,6 +20,8 @@ import java.util.List;
 public class WatchpostController {
 
     private final WatchpostQueryApi watchpostQueryApi;
+    private final WatchpostCommandApi watchpostCommandApi;
+    private final SseNotificationService sseNotificationService;
 
     @AdminOnly
     @GetMapping("/latest")
@@ -26,6 +31,21 @@ public class WatchpostController {
     ) {
         Page<AnimeItemDetailsResult> page = watchpostQueryApi.getLatestAnimeItems(interestingOnly, pageable);
         return ResponseEntity.ok(page.getContent());
+    }
+
+    @AdminOnly
+    @PostMapping("/series/{seriesId}/metadata/anilist/{anilistId}")
+    public ResponseEntity<Void> manuallyUpdateMetadata(
+            @PathVariable Long seriesId,
+            @PathVariable Long anilistId) {
+        watchpostCommandApi.manuallyAssignAniListIdAndFetchMetadata(seriesId, anilistId);
+        return ResponseEntity.ok().build();
+    }
+
+    @AdminOnly
+    @GetMapping(value = "/stream", produces = "text/event-stream")
+    public SseEmitter streamEvents() {
+        return sseNotificationService.createEmitter();
     }
 
     //TODO: endpoints

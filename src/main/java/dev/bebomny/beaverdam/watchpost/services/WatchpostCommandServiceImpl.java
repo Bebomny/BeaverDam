@@ -4,9 +4,12 @@ import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
+import dev.bebomny.beaverdam.watchpost.dto.AniListDto;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
+import dev.bebomny.beaverdam.watchpost.entities.ShowMetadata;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;
+import dev.bebomny.beaverdam.watchpost.repos.ShowMetadataRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +23,8 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
 
     private final RssFeedRepository rssFeedRepository;
     private final ShowSeriesRepository showSeriesRepository;
+    private final AniListApiService aniListApiService;
+    private final ShowMetadataRepository showMetadataRepository;
 
     @Override
     @Transactional
@@ -108,5 +113,29 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
                 .ignored(series.getIsIgnored())
                 .autoDownload(series.getAutoDownload())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void manuallyAssignAniListIdAndFetchMetadata(Long showSeriesId, Long aniListId) {
+        ShowSeries series = showSeriesRepository.findById(showSeriesId)
+                .orElseThrow(() -> new IllegalArgumentException("Series id: " + showSeriesId + " not found"));
+
+        AniListDto.Media media = aniListApiService.fetchAnimeMetadataById(showSeriesId, aniListId)
+                .orElseThrow(() -> new IllegalArgumentException("AniListId: " + aniListId + " not found"));
+
+        ShowMetadata metadata = showMetadataRepository.findByShowSeriesId(showSeriesId)
+                .orElse(ShowMetadata.builder().showSeries(series).build());
+
+        metadata.setAnilistId(media.id());
+        metadata.setMalId(media.idMal());
+        metadata.setLocalizedName(media.getBestTitle());
+        metadata.setCoverImageUrl(media.coverImage() != null ? media.coverImage().large() : null);
+        metadata.setSynopsis(media.description());
+        metadata.setGenres(media.getGenresAsString());
+        metadata.setStatus(media.status());
+
+        showMetadataRepository.save(metadata);
+        log.atInfo().log("Manual anilistId assignment for id {} '{}'. Successful",  aniListId, media.getBestTitle());
     }
 }
