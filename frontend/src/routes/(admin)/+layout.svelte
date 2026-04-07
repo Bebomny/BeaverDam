@@ -89,7 +89,7 @@
 
         position: sticky;
         top: 0;
-        height: 100vh;
+        height: 90vh;
         overflow-y: auto;
     }
 

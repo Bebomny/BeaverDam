@@ -3,7 +3,7 @@ import {error, type RequestHandler} from "@sveltejs/kit";
 const IS_DOCKER = process.env.NODE_ENV === 'production';
 const BACKEND_URL = IS_DOCKER ? 'http://beaverdam:8080' : 'http://localhost:8080';
 
-export const GET: RequestHandler = async ({ fetch, locals }) => {
+export const GET: RequestHandler = async ({ fetch, locals, request }) => {
     const userEmail = locals.userEmail || 'unknown@mail';
 
     try {
@@ -12,7 +12,8 @@ export const GET: RequestHandler = async ({ fetch, locals }) => {
             headers: {
                 'X-User-Email': userEmail,
                 'Accept': 'text/event-stream'
-            }
+            },
+            signal: request.signal
         });
 
         if (!response.ok) {
@@ -26,7 +27,12 @@ export const GET: RequestHandler = async ({ fetch, locals }) => {
                 'Connection': 'keep-alive'
             }
         });
-    } catch (err) {
+    } catch (err: any) {
+        if (err.name === 'AbortError') {
+            console.log("Client disconnected, closing backend stream.")
+            return new Response(null, { status: 204 });
+        }
+
         console.error("Error connecting to sse stream: ", err);
         throw error(500, 'Could not establish event stream');
     }

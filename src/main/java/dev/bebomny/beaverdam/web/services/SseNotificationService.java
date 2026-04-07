@@ -1,6 +1,7 @@
 package dev.bebomny.beaverdam.web.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -37,6 +38,18 @@ public class SseNotificationService {
                 emitter.send(SseEmitter.event()
                         .name("message")
                         .data(payload));
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                this.emitters.remove(emitter);
+            }
+        }
+    }
+
+    @Scheduled(fixedRate = 30000)
+    public void sendHeartbeat() {
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event().comment("keepalive"));
             } catch (IOException e) {
                 emitter.completeWithError(e);
                 this.emitters.remove(emitter);
