@@ -126,7 +126,8 @@ tasks.register("deployToServer") {
                     val frontendTar = tasks.named<Tar>("packageFrontend").get().archiveFile.get().asFile
                     put(hashMapOf("from" to frontendTar, "into" to "$targetDir/frontend.tar.gz"))
 
-                    execute("cd $targetDir && mkdir -p frontend && tar -xzf frontend.tar.gz -C frontend && rm frontend.tar.gz")
+                    execute("cd $targetDir && rm -rf frontend && mkdir frontend && tar -xzf frontend.tar.gz -C frontend && rm frontend.tar.gz")
+//                    execute("cd $targetDir && mkdir -p frontend && tar -xzf frontend.tar.gz -C frontend && rm frontend.tar.gz")
 
                     println("Uploading Production Docker/Compose files...")
                     put(hashMapOf("from" to file("docker-compose.prod.yml"), "into" to "$targetDir/docker-compose.yml"))
