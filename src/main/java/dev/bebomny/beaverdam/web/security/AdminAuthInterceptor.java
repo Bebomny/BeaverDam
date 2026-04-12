@@ -8,12 +8,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Set;
+
 @Component
 @RequiredArgsConstructor
 public class AdminAuthInterceptor implements HandlerInterceptor {
 
     @Value("${web.config.admin_email}")
-    private String adminEmail;
+    private Set<String> adminEmail;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -27,7 +29,7 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
         if (requiresAdmin) {
             String userEmail = request.getHeader("X-User-Email");
 
-            if (userEmail == null || !userEmail.equalsIgnoreCase(adminEmail)) {
+            if (userEmail == null || !adminEmail.contains(userEmail.toLowerCase())) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return false;
             }
