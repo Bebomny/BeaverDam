@@ -46,6 +46,9 @@ export const load: PageServerLoad = async ({ fetch, locals }) => {
         };
     } catch (err) {
         console.error("Error fetching series data:", err);
-        return { animeItems: [] };
+        return {
+            unsubmittedShowSeries: [],
+            showSeriesWithoutMetadata: []
+        };
     }
 };
