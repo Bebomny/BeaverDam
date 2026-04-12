@@ -108,7 +108,7 @@
         try {
             if (selectedAnime.animeOnlineId !== undefined) {
                 try {
-                    const res = await fetch(`/api/watchpost/remove-metadata`, {
+                    const res = await fetch(`/api/watchpost/series/remove-metadata`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -127,7 +127,7 @@
                 }
             }
 
-            const res = await fetch(`/api/watchpost/update-anilist`, {
+            const res = await fetch(`/api/watchpost/series/update-anilist`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

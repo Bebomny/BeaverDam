@@ -2,6 +2,7 @@ package dev.bebomny.beaverdam.watchpost.services;
 
 import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
 import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.dto.AniListDto;
@@ -63,7 +64,7 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
 
     @Override
     @Transactional
-    public ShowSeriesStateDetailsResult updateSeriesState(Long targetItemId, ShowSeriesParam param, Boolean newValue) {
+    public ShowSeriesStateDetailsResult updateShowSeriesParam(Long targetItemId, ShowSeriesParam param, Boolean newValue) {
         ShowSeries series = showSeriesRepository.findById(targetItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Series id: " + targetItemId + "not found"));
 
@@ -112,6 +113,10 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
                 .interesting(series.getIsInteresting())
                 .ignored(series.getIsIgnored())
                 .autoDownload(series.getAutoDownload())
+                .submitted(series.getSubmitted())
+                .customShareRatio(series.getCustomShareRatio())
+                .lastSeen(series.getLastSeen())
+                .addedOn(series.getAddedOn())
                 .build();
     }
 
@@ -149,5 +154,21 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
         showMetadataRepository.removeByShowSeriesId(showSeriesId);
         log.atInfo().log("Removed metadata for show ith Id {}", showSeriesId);
         return true;
+    }
+
+    @Override
+    @Transactional
+    public void updateShowSeriesState(Long showSeriesId, ShowSeriesUpdateRequest request) {
+        ShowSeries series = showSeriesRepository.findById(showSeriesId)
+                .orElseThrow(() -> new IllegalArgumentException("Series id: " + showSeriesId + " not found"));
+
+        if (request.interesting() != null) series.setIsInteresting(request.interesting());
+        if (request.ignored() != null) series.setIsIgnored(request.ignored());
+        if (request.autoDownload() != null) series.setAutoDownload(request.autoDownload());
+        if (request.customShareRatio() != null) series.setCustomShareRatio(request.customShareRatio());
+
+        series.setSubmitted(true);
+
+        showSeriesRepository.save(series);
     }
 }

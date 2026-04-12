@@ -30,6 +30,7 @@
 
         <nav class="nav-links">
             <a href="/dashboard">Dashboard</a>
+            <a href="/watchpost/dashboard">Feed Dashboard</a>
             <a href="/watchpost/animefeed">Anime Feed</a>
             <a href="/watchpost/fullfeed">Full Feed</a>
             <a href="/settings">Settings</a>
@@ -55,13 +56,19 @@
         --subtext-color: hsl(120, 17%, 98%, 75%);
         --bg-color: hsl(120, 17%, 5%);
         --bg-color90: hsl(120, 17%, 5%, 90%);
+        --bg-color80: hsl(120, 17%, 5%, 80%);
         --bg-color70: hsl(120, 17%, 5%, 70%);
+        --bg-color60: hsl(120, 17%, 5%, 60%);
+        --bg-color50: hsl(120, 17%, 5%, 50%);
+        --bg-color40: hsl(120, 17%, 5%, 40%);
+        --bg-color30: hsl(120, 17%, 5%, 30%);
         --primary-color: hsl(125, 28%, 52%);
         --primary-color80: hsl(125, 28%, 52%, 80%);
         --secondary-color: hsl(120, 46%, 75%);
         --secondary-color30: hsl(120, 46%, 75%, 10%);
         --secondary-color-darker: hsl(120, 14%, 19%);
         --accent-color: hsl(120, 54%, 62%);
+        --accent-color80: hsl(120, 54%, 62%, 80%);
 
         --static11: rgba(255, 255, 255, 0.03);
     }
@@ -80,7 +87,7 @@
         /*border-top: 1px solid var(--primary-color);*/
         /*background-color: var(--bg-color70);*/
         background-color: var(--static11);
-        border-radius: 8px 8px 0 0;
+        border-radius: 8px 8px 3px 3px;
         display: flex;
         flex-direction: column;
         margin-top: 10px;

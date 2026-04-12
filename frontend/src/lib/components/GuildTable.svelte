@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {DiscordGuildVoiceChatDataResult} from "$lib/types";
 
-    let { guildId } = $props<{ guildId: string }>();
+    let {guildId} = $props<{ guildId: string }>();
 
     let currentGuildData = $state<DiscordGuildVoiceChatDataResult | null>(null);
     let isLoading = $state(true);
@@ -61,7 +61,7 @@
                     {getSortHeader('stream', 'Live Streams')}
                 </th>
                 <th class="sortable" onclick={() => currentSortField = 'suppress'}>
-                     {getSortHeader('suppress', 'Suppressed')}
+                    {getSortHeader('suppress', 'Suppressed')}
                 </th>
                 <th class="sortable" onclick={() => currentSortField = 'self_mute'}>
                     {getSortHeader('self_mute', 'Self Mutes')}

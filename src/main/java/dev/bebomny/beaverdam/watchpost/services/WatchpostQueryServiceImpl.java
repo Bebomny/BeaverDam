@@ -1,11 +1,10 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
-import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.DownloadDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesSearchResult;
+import dev.bebomny.beaverdam.common.dtos.*;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
+import dev.bebomny.beaverdam.watchpost.entities.ShowMetadata;
+import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +67,11 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                         series.getSeriesName(),
                         series.getIsInteresting(),
                         series.getIsIgnored(),
-                        series.getAutoDownload()
+                        series.getAutoDownload(),
+                        series.getSubmitted(),
+                        series.getCustomShareRatio(),
+                        series.getLastSeen(),
+                        series.getAddedOn()
                 ));
 
 //        return showSeriesRepository.findBestMatchSeries(name, Limit.of(1))
@@ -154,4 +157,71 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
 
         return builder.build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ShowSeriesDetailsFullResult> getLatestShowSeries(boolean unsubmittedOnly, Pageable pageable) {
+        PageRequest pageRequest = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "addedOn")
+        );
+
+        Page<ShowSeries> entityPage = unsubmittedOnly ?
+                showSeriesRepository.findAllBySubmittedFalse(pageRequest)
+                : showSeriesRepository.findAll(pageRequest);
+
+        return entityPage.map(showSeries -> {
+            ShowMetadataFullResult metadataFullResult = null;
+            if (showSeries.getMetadata() != null) {
+                ShowMetadata metadata = showSeries.getMetadata();
+                metadataFullResult = ShowMetadataFullResult.builder()
+                        .metadataId(metadata.getId())
+                        .malId(metadata.getMalId())
+                        .anilistId(metadata.getAnilistId())
+                        .localizedName(metadata.getLocalizedName())
+                        .coverImageUrl(metadata.getCoverImageUrl())
+                        .synopsis(metadata.getSynopsis())
+                        .genres(metadata.getGenres())
+                        .status(metadata.getStatus())
+                        .build();
+            }
+
+            return ShowSeriesDetailsFullResult.builder()
+                    .showSeriesId(showSeries.getId())
+                    .showSeriesName(showSeries.getSeriesName())
+                    .interesting(showSeries.getIsInteresting())
+                    .ignored(showSeries.getIsIgnored())
+                    .autoDownload(showSeries.getAutoDownload())
+                    .submitted(showSeries.getSubmitted())
+                    .customShareRation(showSeries.getCustomShareRatio())
+                    .lastSeen(showSeries.getLastSeen())
+                    .addedOn(showSeries.getAddedOn())
+                    .showMetadata(metadataFullResult)
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<ShowSeriesStateDetailsResult> getShowSeriesWithoutMetadata(Pageable pageable) {
+        Page<ShowSeries> entityPage = showSeriesRepository.findAllByMetadataNull(PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "addedOn")
+        ));
+
+        return entityPage.map(series -> ShowSeriesStateDetailsResult.builder()
+                        .id(series.getId())
+                        .name(series.getSeriesName())
+                        .interesting(series.getIsInteresting())
+                        .ignored(series.getIsIgnored())
+                        .autoDownload(series.getAutoDownload())
+                        .submitted(series.getSubmitted())
+                        .customShareRatio(series.getCustomShareRatio())
+                        .lastSeen(series.getLastSeen())
+                        .addedOn(series.getAddedOn())
+                        .build());
+    }
+
+
 }

@@ -1,5 +1,4 @@
-import {error, json} from "@sveltejs/kit";
-import type {RequestHandler} from "../../../../../.svelte-kit/types/src/routes/api/leaderboard/$types";
+import {error, json, type RequestHandler} from "@sveltejs/kit";
 
 const IS_DOCKER = process.env.NODE_ENV === 'production';
 const BACKEND_URL = IS_DOCKER ? 'http://beaverdam:8080' : 'http://localhost:8080';

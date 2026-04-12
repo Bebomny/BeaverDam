@@ -1,9 +1,12 @@
 package dev.bebomny.beaverdam.web.controllers;
 
 import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
+import dev.bebomny.beaverdam.common.dtos.ShowSeriesDetailsFullResult;
+import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
+import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
 import dev.bebomny.beaverdam.web.security.AdminOnly;
 import dev.bebomny.beaverdam.web.services.SseNotificationService;
 import lombok.RequiredArgsConstructor;
@@ -71,10 +74,34 @@ public class WatchpostController {
         return sseNotificationService.createEmitter();
     }
 
+    @AdminOnly
+    @GetMapping("/series/latest")
+    public ResponseEntity<List<ShowSeriesDetailsFullResult>> getLatestShowSeries(
+            @RequestParam(name = "unsubmitted", defaultValue = "false") boolean unsubmittedOnly,
+            Pageable pageable) {
+        Page<ShowSeriesDetailsFullResult> page = watchpostQueryApi.getLatestShowSeries(unsubmittedOnly, pageable);
+        return ResponseEntity.ok(page.getContent());
+    }
+
+    @AdminOnly
+    @GetMapping("/series/missing-metadata")
+    public ResponseEntity<List<ShowSeriesStateDetailsResult>> getShowSeriesWithoutMetadata(Pageable pageable) {
+        Page<ShowSeriesStateDetailsResult> page = watchpostQueryApi.getShowSeriesWithoutMetadata(pageable);
+        return ResponseEntity.ok(page.getContent());
+    }
+
+    @AdminOnly
+    @PatchMapping("/series/{seriesId}")
+    public ResponseEntity<Void> updateSeries(
+            @PathVariable Long seriesId,
+            @RequestBody ShowSeriesUpdateRequest request) {
+        watchpostCommandApi.updateShowSeriesState(seriesId, request);
+        return ResponseEntity.ok().build();
+    }
     //TODO: endpoints
     // getShowSeries
-    // getLatestShowSeries
-    // getUnsubmittedShowSeries
+    // getLatestShowSeries - done
+    // getUnsubmittedShowSeries - done
     // getAnimeItems(General)
     // getAnimeItem(by id, by name?, by showseries id?, etc)
     // getAnimeItemsSince(for dynamic updates, to avoid websockets here?)

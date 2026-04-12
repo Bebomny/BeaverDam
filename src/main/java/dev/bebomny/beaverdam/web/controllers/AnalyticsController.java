@@ -1,7 +1,10 @@
 package dev.bebomny.beaverdam.web.controllers;
 
 import dev.bebomny.beaverdam.analytics.AnalyticsQueryApi;
-import dev.bebomny.beaverdam.common.dtos.*;
+import dev.bebomny.beaverdam.common.dtos.DiscordGuildVoiceTimesResult;
+import dev.bebomny.beaverdam.common.dtos.DiscordMonitoredGuildResult;
+import dev.bebomny.beaverdam.common.dtos.DiscordVoiceChatDataResult;
+import dev.bebomny.beaverdam.common.dtos.DiscordVoiceTimeResult;
 import dev.bebomny.beaverdam.discord.DiscordQueryApi;
 import dev.bebomny.beaverdam.web.dtos.DiscordGuildVoiceChatDataCompleteResult;
 import dev.bebomny.beaverdam.web.dtos.DiscordVoiceChatDataCompleteResult;
@@ -82,7 +85,7 @@ public class AnalyticsController {
         List<DiscordVoiceChatDataCompleteResult> responseData = rawVoiceChatData.stream()
                 .map(voiceData ->
                         DiscordVoiceChatDataCompleteResult.builder()
-                            .userId(voiceData.userId())
+                                .userId(voiceData.userId())
                                 .username(voiceData.username())
                                 .userIconUrl(iconUrls.get(voiceData.userId()))
                                 .totalSecondsSpent(voiceData.totalSecondsSpent())

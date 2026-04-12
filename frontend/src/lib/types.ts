@@ -74,3 +74,41 @@ export interface AnimeItemDetailsResult {
     genres: string;
     status: string;
 }
+
+export interface ShowSeriesStateDetailsResult {
+    id: string;
+    name: string;
+    interesting: boolean;
+    ignored: boolean;
+    autoDownload: boolean;
+    submitted: boolean;
+    customShareRatio: string;
+    lastSeen: string;
+    addedOn: string;
+    onlineId: string;
+}
+
+export interface ShowMetadataFullResult {
+    metadataId: string;
+    malId: string;
+    anilistId: string;
+    localizedName: string;
+    coverImageUrl: string;
+    synopsis: string;
+    genres: string;
+    status: string;
+}
+
+export interface ShowSeriesDetailsFullResult {
+    showSeriesId: string;
+    showSeriesName: string;
+    interesting: boolean;
+    ignored: boolean;
+    autoDownload: boolean;
+    submitted: boolean;
+    customShareRatio: string;
+    lastSeen: string;
+    addedOn: string;
+
+    showMetadata: ShowMetadataFullResult;
+}
