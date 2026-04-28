@@ -1,6 +1,7 @@
 package dev.bebomny.beaverdam.watchpost.processors;
 
 import com.apptasticsoftware.rssreader.Item;
+import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.common.events.WatchpostNewAnimeItemEvent;
 import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
 import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
@@ -142,5 +143,10 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
                 .malLink(series.getMalLink())
                 .build()
         );
+
+        if (series.getAutoDownload()) {
+            eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(
+                    newAnimeItem.getId(), null, "beaverdam"));
+        }
     }
 }
