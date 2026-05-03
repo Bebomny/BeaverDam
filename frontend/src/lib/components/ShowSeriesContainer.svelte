@@ -373,7 +373,7 @@
         color: var(--subtext-color);
     }
 
-    .empty-state h3 {
+    .empty-state p {
         margin: 0.7rem 0;
     }
 </style>
