@@ -112,3 +112,14 @@ export interface ShowSeriesDetailsFullResult {
 
     showMetadata: ShowMetadataFullResult;
 }
+
+export interface WatchpostStatsResult {
+    interestingEpisodesPastWeek: number;
+    newEpisodesThisSeason: number;
+    totalEpisodesToday: number;
+    newSeriesThisSeason: number;
+    totalEpisodes: number;
+    totalInterestingEpisodes: number;
+    totalShowSeries: number;
+    totalInterestingShowSeries: number;
+}

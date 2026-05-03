@@ -25,4 +25,6 @@ public interface WatchpostQueryApi {
     Page<ShowSeriesDetailsFullResult> getLatestShowSeries(boolean unsubmittedOnly, Pageable pageable);
 
     Page<ShowSeriesStateDetailsResult> getShowSeriesWithoutMetadata(Pageable pageable);
+
+    WatchpostStatsResult getStatistics();
 }

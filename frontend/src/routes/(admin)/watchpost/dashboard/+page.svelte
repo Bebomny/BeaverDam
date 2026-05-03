@@ -1,13 +1,18 @@
 <script>
     import ShowSeriesContainer from "$lib/components/ShowSeriesContainer.svelte";
     import MissingMetadataContainer from "$lib/components/MissingMetadataContainer.svelte";
+    import WatchpostStatisticsContainer from "$lib/components/WatchpostStatisticsContainer.svelte";
 
     let { data } = $props();
 </script>
 
 <main>
     <div class="feed-dashboard-header">
-        <span>bajo jajo</span>
+        <span>Test test</span>
+
+        <div class="watchpost-stats-container">
+            <WatchpostStatisticsContainer stats={data.stats} />
+        </div>
     </div>
     <div class="dashboard-content">
         <div class="new-show-series-container">
@@ -28,7 +33,11 @@
     }
 
     .feed-dashboard-header {
-        height: 5rem;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
     }
 
     .dashboard-content {

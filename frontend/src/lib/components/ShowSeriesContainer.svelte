@@ -72,7 +72,7 @@
                 onclick={() => isExpanded = !isExpanded}>
             {isExpanded ? '▼' : '▶'}
         </button>
-        <h2 class="title-header">Unsubmitted Show Series</h2>
+        <h3 class="title-header">Unsubmitted Show Series</h3>
     </div>
     {#if isExpanded}
         {#each localSeries as series}
@@ -83,13 +83,13 @@
                  onkeydown={(e) => e.key === 'Enter' || e.key === 'ArrowDown' && selectShowSeries(series)}
             >
                 <div class="name-id-container">
-                    <h3 class="series-id">
+                    <h4 class="series-id">
                         ID: {series.showSeriesId}
-                    </h3>
+                    </h4>
 
-                    <h3 class="name-title" title={series.showSeriesName}>
+                    <h4 class="name-title" title={series.showSeriesName}>
                         {series.showSeriesName}
-                    </h3>
+                    </h4>
 
                     {#if selectedSeries !== null && selectedSeries.showSeriesId === series.showSeriesId}
                         <button class="btn series-submit-btn"
@@ -105,12 +105,12 @@
                     <div class="series-details-container">
                         <div class="series-info-container">
                             <div class="series-param-container">
-                                <h4 class="series-param-info">
+                                <p class="series-param-info">
                                     Interesting
-                                </h4>
-                                <h4 class="series-param-value">
+                                </p>
+                                <p class="series-param-value">
                                     {selectedSeries.interesting}
-                                </h4>
+                                </p>
                                 <button class="btn series-param-btn"
                                         type="button"
                                         onclick={(e) => {e.stopPropagation(); updateSeries('interesting')}}
@@ -119,12 +119,12 @@
                                 </button>
                             </div>
                             <div class="series-param-container">
-                                <h4 class="series-param-info">
+                                <p class="series-param-info">
                                     Ignored
-                                </h4>
-                                <h4 class="series-param-value">
+                                </p>
+                                <p class="series-param-value">
                                     {selectedSeries.ignored}
-                                </h4>
+                                </p>
                                 <button class="btn series-param-btn"
                                         type="button"
                                         onclick={(e) => {e.stopPropagation(); updateSeries('ignored')}}
@@ -133,12 +133,12 @@
                                 </button>
                             </div>
                             <div class="series-param-container">
-                                <h4 class="series-param-info">
+                                <p class="series-param-info">
                                     Auto Download
-                                </h4>
-                                <h4 class="series-param-value">
+                                </p>
+                                <p class="series-param-value">
                                     {selectedSeries.autoDownload}
-                                </h4>
+                                </p>
                                 <button class="btn series-param-btn"
                                         type="button"
                                         onclick={(e) => {e.stopPropagation(); updateSeries('autoDownload')}}
@@ -147,9 +147,9 @@
                                 </button>
                             </div>
                             <div class="series-param-container">
-                                <h4 class="series-param-info">
+                                <p class="series-param-info">
                                     Custom Share Ratio
-                                </h4>
+                                </p>
                                 <input class="custom-ratio-input"
                                        type="text"
                                        placeholder={selectedSeries.customShareRatio}
@@ -160,9 +160,9 @@
 
                         {#if selectedSeries.showMetadata !== null}
                             <div class="series-synopsis-container">
-                                <h3 class="series-synopsis-title">
+                                <p class="series-synopsis-title">
                                     Synopsis
-                                </h3>
+                                </p>
                                 <span class="series-synopsis">
                                 {selectedSeries.showMetadata.synopsis}
                             </span>
@@ -212,6 +212,7 @@
 
     .title-header {
         color: var(--text-color);
+        margin: 0.7rem 0;
     }
 
     .toggle-btn {
@@ -237,17 +238,20 @@
     .name-id-container {
         display: flex;
         flex-direction: row;
-        gap: 1rem;
+        gap: 0.6rem;
         align-items: center;
+
     }
 
     .name-title {
         color: var(--text-color);
         text-wrap: wrap;
+        margin: 0.5rem 0;
     }
 
     .series-id {
         color: var(--subtext-color);
+        margin: 0.5rem 0;
     }
 
     .series-details-container {
@@ -259,6 +263,11 @@
 
     .series-info-container {
         /*flex-grow: 1;*/
+        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+
+        gap: 1rem;
     }
 
     .series-synopsis-container {
@@ -306,7 +315,7 @@
 
     .series-param-info {
         padding: 0 0.1rem;
-        /*margin: 0;*/
+        margin: 0 0 0 0;
 
         color: var(--subtext-color);
     }
@@ -314,6 +323,7 @@
     .series-param-value {
         color: var(--text-color);
         font-weight: bold;
+        margin: 0;
     }
 
     .btn {
@@ -321,7 +331,7 @@
         padding: 0.3rem 0.6rem;
         border: 0;
         border-radius: 6px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 600;
         transition: background 0.2s;
         color: var(--text-color);
@@ -361,5 +371,9 @@
 
     .empty-state {
         color: var(--subtext-color);
+    }
+
+    .empty-state h3 {
+        margin: 0.7rem 0;
     }
 </style>

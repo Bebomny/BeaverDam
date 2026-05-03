@@ -21,6 +21,7 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
 
     private final AnimeRssItemRepository animeItemRepository;
     private final ShowSeriesRepository showSeriesRepository;
+    private final WatchpostStatisticsService statisticsService;
 
     @Override
     @Transactional(readOnly = true)
@@ -194,7 +195,7 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                     .ignored(showSeries.getIsIgnored())
                     .autoDownload(showSeries.getAutoDownload())
                     .submitted(showSeries.getSubmitted())
-                    .customShareRation(showSeries.getCustomShareRatio())
+                    .customShareRatio(showSeries.getCustomShareRatio())
                     .lastSeen(showSeries.getLastSeen())
                     .addedOn(showSeries.getAddedOn())
                     .showMetadata(metadataFullResult)
@@ -203,6 +204,7 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ShowSeriesStateDetailsResult> getShowSeriesWithoutMetadata(Pageable pageable) {
         Page<ShowSeries> entityPage = showSeriesRepository.findAllByMetadataNull(PageRequest.of(
                 pageable.getPageNumber(),
@@ -221,6 +223,12 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                         .lastSeen(series.getLastSeen())
                         .addedOn(series.getAddedOn())
                         .build());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WatchpostStatsResult getStatistics() {
+        return statisticsService.calculateStatistics();
     }
 
 

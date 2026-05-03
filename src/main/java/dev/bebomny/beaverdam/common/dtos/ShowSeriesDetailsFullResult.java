@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public record ShowSeriesDetailsFullResult(
         Long showSeriesId, String showSeriesName,
         Boolean interesting, Boolean ignored, Boolean autoDownload, Boolean submitted,
-        String customShareRation,
+        String customShareRatio,
         LocalDateTime lastSeen, LocalDateTime addedOn,
 
         ShowMetadataFullResult showMetadata

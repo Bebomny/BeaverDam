@@ -48,19 +48,19 @@
                 onclick={() => isExpanded = !isExpanded}>
             {isExpanded ? '▼' : '▶'}
         </button>
-        <h2 class="title-header">Series Without Metadata</h2>
+        <h3 class="title-header">Series Without Metadata</h3>
     </div>
     {#if isExpanded}
         {#each localSeries as series}
             <div class="series-row-container">
                 <div class="name-id-container">
-                    <h3 class="series-id">
+                    <h4 class="series-id">
                         ID: {series.id}
-                    </h3>
+                    </h4>
 
-                    <h3 class="name-title" title={series.name}>
+                    <h4 class="name-title" title={series.name}>
                         {series.name}
-                    </h3>
+                    </h4>
                 </div>
 
                 <div class="set-onlineid-container">
@@ -78,7 +78,7 @@
             </div>
         {:else}
             <div class="empty-state">
-                <h3>All series have assigned metadata! woo hoo!</h3>
+                <h4>All series have assigned metadata! woo hoo!</h4>
             </div>
         {/each}
     {/if}
@@ -106,6 +106,7 @@
 
     .title-header {
         color: var(--text-color);
+        margin: 0.7rem 0;
     }
 
     .toggle-btn {
@@ -139,11 +140,13 @@
     .name-title {
         color: var(--text-color);
         text-wrap: wrap;
+        margin: 0.5rem 0;
     }
 
     .series-id {
         color: var(--subtext-color);
         text-wrap: nowrap;
+        margin: 0.5rem 0;
     }
 
     .set-onlineid-container {
@@ -186,5 +189,9 @@
     .empty-state {
         color: var(--subtext-color);
         padding: 0 1rem 0 1rem;
+    }
+
+    .empty-state h4 {
+        margin: 0.7rem 0;
     }
 </style>

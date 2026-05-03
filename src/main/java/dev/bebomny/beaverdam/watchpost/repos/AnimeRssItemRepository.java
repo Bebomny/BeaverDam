@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface AnimeRssItemRepository extends JpaRepository<AnimeRssItem, Long> {
@@ -33,4 +34,10 @@ public interface AnimeRssItemRepository extends JpaRepository<AnimeRssItem, Long
                     WHERE (:interestingOnly = false OR s.isInteresting = true)
                     """)
     Page<AnimeRssItem> findAnimeItemsWithDetails(@Param("interestingOnly") boolean interestingOnly, Pageable pageable);
+
+    Long countByPubDateAfter(LocalDateTime date);
+
+    Long countByShowSeriesIsInterestingTrueAndPubDateAfter(LocalDateTime date);
+
+    Long countByShowSeriesIsInterestingTrue();
 }

@@ -1,12 +1,9 @@
 package dev.bebomny.beaverdam.web.controllers;
 
-import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesDetailsFullResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.common.dtos.*;
 import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
 import dev.bebomny.beaverdam.web.security.AdminOnly;
 import dev.bebomny.beaverdam.web.services.SseNotificationService;
 import lombok.RequiredArgsConstructor;
@@ -97,6 +94,12 @@ public class WatchpostController {
             @RequestBody ShowSeriesUpdateRequest request) {
         watchpostCommandApi.updateShowSeriesState(seriesId, request);
         return ResponseEntity.ok().build();
+    }
+
+    @AdminOnly
+    @GetMapping("/stats")
+    public ResponseEntity<WatchpostStatsResult> getStatistics() {
+        return ResponseEntity.ok(watchpostQueryApi.getStatistics());
     }
     //TODO: endpoints
     // getShowSeries

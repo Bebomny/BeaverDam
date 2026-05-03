@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,4 +35,8 @@ public interface ShowSeriesRepository extends JpaRepository<ShowSeries, Long> {
     Page<ShowSeries> findAllBySubmittedFalse(Pageable pageable);
 
     Page<ShowSeries> findAllByMetadataNull(Pageable pageable);
+
+    Long countByAddedOnAfter(LocalDateTime date);
+
+    Long countByIsInterestingTrue();
 }

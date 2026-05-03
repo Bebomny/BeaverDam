@@ -1,54 +1,58 @@
 import type {PageServerLoad} from "../../../../../.svelte-kit/types/src/routes/(admin)/watchpost/$types";
-import {error} from "@sveltejs/kit";
-import type {ShowSeriesDetailsFullResult, ShowSeriesStateDetailsResult} from "$lib/types";
 
 const IS_DOCKER = process.env.NODE_ENV === "production";
 const BACKEND_URL = IS_DOCKER ? "http://beaverdam:8080" : "http://localhost:8080";
 
-export const load: PageServerLoad = async ({ fetch, locals }) => {
-    let unsubmittedShowSeries: ShowSeriesDetailsFullResult[] = [];
-    let showSeriesWithoutMetadata: ShowSeriesStateDetailsResult[] = [];
+export const load: PageServerLoad = async ({fetch, locals}) => {
+    const userEmail = locals.userEmail || 'unknown@mail';
+
+    const requestOptions = {
+        method: "GET",
+        headers: {
+            'X-User-Email': userEmail,
+            'Content-Type': 'application/json'
+        }
+    };
 
     try {
-        const userEmail = locals.userEmail || 'unknown@mail';
+        const [unsubmittedSeriesResponse, missingMetadataResponse, statsResponse] = await Promise.all([
+            fetch(`${BACKEND_URL}/api/watchpost/series/latest?unsubmitted=true&page=0&size=50`, requestOptions),
+            fetch(`${BACKEND_URL}/api/watchpost/series/missing-metadata?page=0&size=50`, requestOptions),
+            fetch(`${BACKEND_URL}/api/watchpost/stats`, requestOptions)
+        ]);
 
-        const unsubmittedSeriesResponse = await fetch(`${BACKEND_URL}/api/watchpost/series/latest?unsubmitted=true&page=0&size=50`, {
-            method: "GET",
-            headers: {
-                'X-User-Email': userEmail,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!unsubmittedSeriesResponse.ok) {
-            throw error(unsubmittedSeriesResponse.status, 'Failed to fetch unsubmitted series.')
+        if (!unsubmittedSeriesResponse.ok || !missingMetadataResponse.ok || !statsResponse.ok) {
+            throw new Error(`Failed to fetch dashboard data. Statuses: 
+                ${unsubmittedSeriesResponse.status}, ${missingMetadataResponse.status}, ${statsResponse.status}`);
         }
 
-        unsubmittedShowSeries = await unsubmittedSeriesResponse.json();
-
-        const missingMetadataResponse = await fetch(`${BACKEND_URL}/api/watchpost/series/missing-metadata?page=0&size=50`, {
-            method: "GET",
-            headers: {
-                'X-User-Email': userEmail,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!missingMetadataResponse.ok) {
-            throw error(missingMetadataResponse.status, 'Failed to fetch series with missing metadata.')
-        }
-
-        showSeriesWithoutMetadata = await missingMetadataResponse.json();
+        const [unsubmittedShowSeries, showSeriesWithoutMetadata, stats] = await Promise.all([
+            unsubmittedSeriesResponse.json(),
+            missingMetadataResponse.json(),
+            statsResponse.json()
+        ]);
 
         return {
             unsubmittedShowSeries,
-            showSeriesWithoutMetadata
+            showSeriesWithoutMetadata,
+            stats
         };
     } catch (err) {
-        console.error("Error fetching series data:", err);
+        console.error("Anime Dashboard load error:", err);
+
         return {
             unsubmittedShowSeries: [],
-            showSeriesWithoutMetadata: []
+            showSeriesWithoutMetadata: [],
+            stats: {
+                interestingEpisodesPastWeek: -1,
+                newEpisodesThisSeason: -1,
+                totalEpisodesToday: -1,
+                newSeriesThisSeason: -1,
+                totalEpisodes: -1,
+                totalInterestingEpisodes: -1,
+                totalShowSeries: -1,
+                totalInterestingShowSeries: 1,
+            }
         };
     }
 };
