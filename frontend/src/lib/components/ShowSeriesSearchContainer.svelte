@@ -227,7 +227,8 @@
         background: var(--static11);
         border-radius: 4px;
         /*padding: 0.4rem 0.5rem 0.4rem 0.5rem;*/
-        gap: 0.1rem
+        gap: 0.1rem;
+        max-width: 700px;
     }
 
     .search-header {
@@ -235,8 +236,8 @@
         flex-direction: row;
         justify-content: flex-start;
         gap: 0.5rem;
-        width: 98%;
-        padding: 0.2rem 0.4rem;
+        width: 95%;
+        padding: 0.2rem 1rem;
     }
 
     .title-header {
