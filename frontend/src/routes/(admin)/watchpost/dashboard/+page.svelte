@@ -2,13 +2,16 @@
     import ShowSeriesContainer from "$lib/components/ShowSeriesContainer.svelte";
     import MissingMetadataContainer from "$lib/components/MissingMetadataContainer.svelte";
     import WatchpostStatisticsContainer from "$lib/components/WatchpostStatisticsContainer.svelte";
+    import ShowSeriesSearchContainer from "$lib/components/ShowSeriesSearchContainer.svelte";
 
     let { data } = $props();
 </script>
 
 <main>
     <div class="feed-dashboard-header">
-        <span>Test test</span>
+        <div class ="watchpost-series-search">
+            <ShowSeriesSearchContainer latestShowSeries={data.latestShowSeries}/>
+        </div>
 
         <div class="watchpost-stats-container">
             <WatchpostStatisticsContainer stats={data.stats} />
@@ -38,6 +41,11 @@
         flex-direction: row;
         justify-content: space-between;
         margin-bottom: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .watchpost-series-search {
+        flex-grow: 1;
     }
 
     .dashboard-content {

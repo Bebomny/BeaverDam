@@ -101,6 +101,13 @@ public class WatchpostController {
     public ResponseEntity<WatchpostStatsResult> getStatistics() {
         return ResponseEntity.ok(watchpostQueryApi.getStatistics());
     }
+
+    @AdminOnly
+    @GetMapping("/series/search")
+    public ResponseEntity<List<ShowSeriesDetailsFullResult>> searchBestMatchSeries(@RequestParam String query) {
+        return ResponseEntity.ok(watchpostQueryApi.searchSeriesFullBestMatchByName(query, 5));
+    }
+
     //TODO: endpoints
     // getShowSeries
     // getLatestShowSeries - done

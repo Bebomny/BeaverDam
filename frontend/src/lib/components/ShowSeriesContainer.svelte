@@ -15,14 +15,7 @@
     let isExpanded = $state(true);
 
     function selectShowSeries(series: ShowSeriesDetailsFullResult) {
-        if (!series) return;
-
-        // if (selectedSeries !== null && series.showSeriesId === selectedSeries.showSeriesId) {
-        //     selectedSeries = null;
-        //     return;
-        // }
-
-        selectedSeries = series;
+        selectedSeries = { ...series };
     }
 
     function updateSeries(param: 'interesting' | 'ignored' | 'autoDownload') {
@@ -105,12 +98,12 @@
                     <div class="series-details-container">
                         <div class="series-info-container">
                             <div class="series-param-container">
-                                <p class="series-param-info">
+                                <span class="series-param-info">
                                     Interesting
-                                </p>
-                                <p class="series-param-value">
+                                </span>
+                                <span class="series-param-value">
                                     {selectedSeries.interesting}
-                                </p>
+                                </span>
                                 <button class="btn series-param-btn"
                                         type="button"
                                         onclick={(e) => {e.stopPropagation(); updateSeries('interesting')}}
@@ -119,12 +112,12 @@
                                 </button>
                             </div>
                             <div class="series-param-container">
-                                <p class="series-param-info">
+                                <span class="series-param-info">
                                     Ignored
-                                </p>
-                                <p class="series-param-value">
+                                </span>
+                                <span class="series-param-value">
                                     {selectedSeries.ignored}
-                                </p>
+                                </span>
                                 <button class="btn series-param-btn"
                                         type="button"
                                         onclick={(e) => {e.stopPropagation(); updateSeries('ignored')}}
@@ -133,12 +126,12 @@
                                 </button>
                             </div>
                             <div class="series-param-container">
-                                <p class="series-param-info">
+                                <span class="series-param-info">
                                     Auto Download
-                                </p>
-                                <p class="series-param-value">
+                                </span>
+                                <span class="series-param-value">
                                     {selectedSeries.autoDownload}
-                                </p>
+                                </span>
                                 <button class="btn series-param-btn"
                                         type="button"
                                         onclick={(e) => {e.stopPropagation(); updateSeries('autoDownload')}}
@@ -147,9 +140,9 @@
                                 </button>
                             </div>
                             <div class="series-param-container">
-                                <p class="series-param-info">
+                                <span class="series-param-info">
                                     Custom Share Ratio
-                                </p>
+                                </span>
                                 <input class="custom-ratio-input"
                                        type="text"
                                        placeholder={selectedSeries.customShareRatio}
@@ -160,9 +153,9 @@
 
                         {#if selectedSeries.showMetadata !== null}
                             <div class="series-synopsis-container">
-                                <p class="series-synopsis-title">
+                                <span class="series-synopsis-title">
                                     Synopsis
-                                </p>
+                                </span>
                                 <span class="series-synopsis">
                                 {selectedSeries.showMetadata.synopsis}
                             </span>
@@ -358,7 +351,7 @@
         /*flex-grow: 1;*/
         border: 1px solid var(--bg-color70);
         background: transparent;
-        color: #e2e8f0;
+        color: var(--text-color);
         padding: 0.5rem;
         border-radius: 3px;
         font-size: 0.8rem;

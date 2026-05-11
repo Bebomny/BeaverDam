@@ -55,6 +55,7 @@
         --text-color: hsl(120, 17%, 98%);
         --subtext-color: hsl(120, 17%, 98%, 75%);
         --bg-color: hsl(120, 17%, 5%);
+        --bg-color-rgb-light: rgb(31, 31, 31);
         --bg-color90: hsl(120, 17%, 5%, 90%);
         --bg-color80: hsl(120, 17%, 5%, 80%);
         --bg-color70: hsl(120, 17%, 5%, 70%);
@@ -71,6 +72,9 @@
         --accent-color80: hsl(120, 54%, 62%, 80%);
 
         --static11: rgba(255, 255, 255, 0.03);
+
+        --cancel-color: rgb(220, 89, 89);
+        --cancel-color-hover: rgb(183, 73, 73);
     }
 
     .app-layout {

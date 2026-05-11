@@ -21,9 +21,26 @@ public interface ShowSeriesRepository extends JpaRepository<ShowSeries, Long> {
     List<ShowSeries> findByOrderByLastSeenDesc(Limit limit);
 
     @Query("SELECT s FROM ShowSeries s " +
+            "LEFT JOIN FETCH s.metadata " +
             "WHERE LOWER(s.seriesName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "ORDER BY LOCATE(LOWER(:search), LOWER(s.seriesName)) ASC, LENGTH(s.seriesName) ASC")
     List<ShowSeries> findBestMatchSeries(@Param("search") String search, Limit limit);
+
+    @Query("""
+                SELECT s FROM ShowSeries s
+                LEFT JOIN FETCH s.metadata m
+                WHERE LOWER(s.seriesName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(m.localizedName) LIKE LOWER(CONCAT('%', :search, '%'))
+                ORDER BY
+                    CASE
+                        WHEN LOWER(s.seriesName) LIKE LOWER(CONCAT(:search, '%')) THEN 1
+                        WHEN LOWER(m.localizedName) LIKE LOWER(CONCAT(:search, '%')) THEN 2
+                        WHEN LOWER(s.seriesName) LIKE LOWER(CONCAT('%', :search, '%')) THEN 3
+                        ELSE 4
+                    END ASC,
+                    LENGTH(s.seriesName) ASC
+            """)
+    List<ShowSeries> findBestMatchSeriesWithMetadataSearch(@Param("search") String search, Limit limit);
 
     @Query("SELECT s FROM ShowSeries s WHERE NOT EXISTS (SELECT 1 FROM ShowMetadata m WHERE m.showSeries = s)")
     List<ShowSeries> findSeriesWithoutMetadata();

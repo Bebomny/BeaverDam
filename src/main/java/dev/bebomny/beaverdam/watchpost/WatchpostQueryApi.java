@@ -27,4 +27,6 @@ public interface WatchpostQueryApi {
     Page<ShowSeriesStateDetailsResult> getShowSeriesWithoutMetadata(Pageable pageable);
 
     WatchpostStatsResult getStatistics();
+
+    List<ShowSeriesDetailsFullResult> searchSeriesFullBestMatchByName(String prefix, int limit);
 }

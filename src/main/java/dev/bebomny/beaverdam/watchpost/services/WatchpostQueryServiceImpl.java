@@ -172,35 +172,37 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                 showSeriesRepository.findAllBySubmittedFalse(pageRequest)
                 : showSeriesRepository.findAll(pageRequest);
 
-        return entityPage.map(showSeries -> {
-            ShowMetadataFullResult metadataFullResult = null;
-            if (showSeries.getMetadata() != null) {
-                ShowMetadata metadata = showSeries.getMetadata();
-                metadataFullResult = ShowMetadataFullResult.builder()
-                        .metadataId(metadata.getId())
-                        .malId(metadata.getMalId())
-                        .anilistId(metadata.getAnilistId())
-                        .localizedName(metadata.getLocalizedName())
-                        .coverImageUrl(metadata.getCoverImageUrl())
-                        .synopsis(metadata.getSynopsis())
-                        .genres(metadata.getGenres())
-                        .status(metadata.getStatus())
-                        .build();
-            }
+        return entityPage.map(this::mapShowSeriesToFullDto);
+    }
 
-            return ShowSeriesDetailsFullResult.builder()
-                    .showSeriesId(showSeries.getId())
-                    .showSeriesName(showSeries.getSeriesName())
-                    .interesting(showSeries.getIsInteresting())
-                    .ignored(showSeries.getIsIgnored())
-                    .autoDownload(showSeries.getAutoDownload())
-                    .submitted(showSeries.getSubmitted())
-                    .customShareRatio(showSeries.getCustomShareRatio())
-                    .lastSeen(showSeries.getLastSeen())
-                    .addedOn(showSeries.getAddedOn())
-                    .showMetadata(metadataFullResult)
+    private ShowSeriesDetailsFullResult mapShowSeriesToFullDto(ShowSeries showSeries) {
+        ShowMetadataFullResult metadataFullResult = null;
+        if (showSeries.getMetadata() != null) {
+            ShowMetadata metadata = showSeries.getMetadata();
+            metadataFullResult = ShowMetadataFullResult.builder()
+                    .metadataId(metadata.getId())
+                    .malId(metadata.getMalId())
+                    .anilistId(metadata.getAnilistId())
+                    .localizedName(metadata.getLocalizedName())
+                    .coverImageUrl(metadata.getCoverImageUrl())
+                    .synopsis(metadata.getSynopsis())
+                    .genres(metadata.getGenres())
+                    .status(metadata.getStatus())
                     .build();
-        });
+        }
+
+        return ShowSeriesDetailsFullResult.builder()
+                .showSeriesId(showSeries.getId())
+                .showSeriesName(showSeries.getSeriesName())
+                .interesting(showSeries.getIsInteresting())
+                .ignored(showSeries.getIsIgnored())
+                .autoDownload(showSeries.getAutoDownload())
+                .submitted(showSeries.getSubmitted())
+                .customShareRatio(showSeries.getCustomShareRatio())
+                .lastSeen(showSeries.getLastSeen())
+                .addedOn(showSeries.getAddedOn())
+                .showMetadata(metadataFullResult)
+                .build();
     }
 
     @Override
@@ -232,4 +234,14 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
     }
 
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ShowSeriesDetailsFullResult> searchSeriesFullBestMatchByName(String prefix, int limit) {
+//        return showSeriesRepository.findBestMatchSeries(prefix, Limit.of(limit))
+        return showSeriesRepository.findBestMatchSeriesWithMetadataSearch(prefix, Limit.of(limit))
+                .stream()
+                .map(this::mapShowSeriesToFullDto)
+                .limit(limit)
+                .toList();
+    }
 }

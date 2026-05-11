@@ -15,27 +15,30 @@ export const load: PageServerLoad = async ({fetch, locals}) => {
     };
 
     try {
-        const [unsubmittedSeriesResponse, missingMetadataResponse, statsResponse] = await Promise.all([
+        const [unsubmittedSeriesResponse, missingMetadataResponse, statsResponse, latestSeriesResponse] = await Promise.all([
             fetch(`${BACKEND_URL}/api/watchpost/series/latest?unsubmitted=true&page=0&size=50`, requestOptions),
             fetch(`${BACKEND_URL}/api/watchpost/series/missing-metadata?page=0&size=50`, requestOptions),
-            fetch(`${BACKEND_URL}/api/watchpost/stats`, requestOptions)
+            fetch(`${BACKEND_URL}/api/watchpost/stats`, requestOptions),
+            fetch(`${BACKEND_URL}/api/watchpost/series/latest?unsubmitted=false&page=0&size=5`, requestOptions)
         ]);
 
-        if (!unsubmittedSeriesResponse.ok || !missingMetadataResponse.ok || !statsResponse.ok) {
+        if (!unsubmittedSeriesResponse.ok || !missingMetadataResponse.ok || !statsResponse.ok || !latestSeriesResponse.ok) {
             throw new Error(`Failed to fetch dashboard data. Statuses: 
-                ${unsubmittedSeriesResponse.status}, ${missingMetadataResponse.status}, ${statsResponse.status}`);
+                ${unsubmittedSeriesResponse.status}, ${missingMetadataResponse.status}, ${statsResponse.status}, ${latestSeriesResponse.status}`);
         }
 
-        const [unsubmittedShowSeries, showSeriesWithoutMetadata, stats] = await Promise.all([
+        const [unsubmittedShowSeries, showSeriesWithoutMetadata, stats, latestShowSeries] = await Promise.all([
             unsubmittedSeriesResponse.json(),
             missingMetadataResponse.json(),
-            statsResponse.json()
+            statsResponse.json(),
+            latestSeriesResponse.json()
         ]);
 
         return {
             unsubmittedShowSeries,
             showSeriesWithoutMetadata,
-            stats
+            stats,
+            latestShowSeries
         };
     } catch (err) {
         console.error("Anime Dashboard load error:", err);
@@ -52,7 +55,8 @@ export const load: PageServerLoad = async ({fetch, locals}) => {
                 totalInterestingEpisodes: -1,
                 totalShowSeries: -1,
                 totalInterestingShowSeries: 1,
-            }
+            },
+            latestShowSeries: []
         };
     }
 };
