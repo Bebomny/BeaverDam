@@ -226,9 +226,9 @@
 
         background: var(--static11);
         border-radius: 4px;
-        /*padding: 0.4rem 0.5rem 0.4rem 0.5rem;*/
         gap: 0.1rem;
         max-width: 700px;
+        height: 100%;
     }
 
     .search-header {
@@ -336,7 +336,7 @@
     }
 
     .modal-header, .modal-footer {
-        padding: 1rem 1.5rem;
+        padding: 0.6rem 1.5rem;
         background: var(--static11);
         display: flex;
         justify-content: space-between;

@@ -90,9 +90,9 @@
         display: flex;
         flex-direction: column;
         gap: 0.1rem;
-        /*background: var(--bg-color30);*/
         background: var(--static11);
         border-radius: 4px;
+        min-width: 500px;
     }
 
     .missing-metadata-header {

@@ -42,6 +42,7 @@
         justify-content: space-between;
         margin-bottom: 0.5rem;
         gap: 0.5rem;
+        align-items: stretch;
     }
 
     .watchpost-series-search {
@@ -51,6 +52,16 @@
     .dashboard-content {
         display: flex;
         gap: 1rem;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .new-show-series-container {
+        flex-grow: 1;
+    }
+
+    .missing-metadata-container {
+        flex-grow: 1;
     }
 </style>
