@@ -431,16 +431,17 @@
         font-size: 1.1rem;
         text-wrap: wrap;
         max-width: 16rem;
-        flex-grow: 2;
+        flex-grow: 0;
     }
 
     .episode-container {
-        flex-grow: 0;
+        flex-grow: 2;
         padding-bottom: 5px;
         display: flex;
         flex-direction: row;
         gap: 0.25rem;
-        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        margin-top: 0.25rem;
     }
 
     .episode-text {

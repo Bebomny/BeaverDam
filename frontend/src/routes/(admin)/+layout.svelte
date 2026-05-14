@@ -99,8 +99,8 @@
         margin-left: 10px;
 
         position: sticky;
-        top: 0;
-        height: 90vh;
+        top: 10px;
+        height: calc(100vh - 20px);
         overflow-y: auto;
     }
 
