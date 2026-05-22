@@ -21,8 +21,12 @@ public record WatchpostNewAnimeItemEvent(
         String videoType,
         String audioType,
 
-        //Flags
+        //Show series specific
         Long showSeriesId,
+        String localizedName,
+        String coverImageUrl,
+
+        //Flags
         boolean isInteresting,
         boolean isIgnored,
         boolean autoDownload,

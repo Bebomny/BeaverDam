@@ -19,6 +19,7 @@ import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,11 +62,11 @@ public class WatchpostEventListener {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(0x2adbfe) //Cyanish - 0x2adbfe
                 .setAuthor("New Anime Episode Found!")
-                .setTitle(event.seriesName())
+                .setTitle(event.localizedName() != null ? event.localizedName() : event.seriesName())
                 .setFooter(event.rawItemName());
 
         if (event.episode() != null) {
-            embedBuilder.setDescription("Episode %s %s".formatted(event.episode(), event.videoType()));
+            embedBuilder.setDescription("Episode %s %s %n%s".formatted(event.episode(), event.videoType(), event.seriesName()));
         }
 
         if (event.sourceFeed() != null) {
@@ -100,7 +101,7 @@ public class WatchpostEventListener {
         }
 
         if (event.autoDownload()) {
-            embedBuilder.addField("Auto Download Start", Date.from(Instant.now()).toString(), true);
+            embedBuilder.addField("Auto Download Start", LocalDateTime.now().toString(), true);
         }
 
         return embedBuilder.build();
