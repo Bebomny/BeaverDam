@@ -13,6 +13,8 @@ import java.net.http.HttpClient;
 @Service
 public class TorrentManagerService {
 
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0";
+
     private final QBittorrentClient qBittorrentClient;
     private final RestClient webClient;
 
@@ -34,8 +36,10 @@ public class TorrentManagerService {
         try {
             log.atInfo().log("Downloading .torrent file from: {}", torrentUrl);
 
+            //TODO: Alert when this fails
             byte[] torrentFileBytes = webClient.get()
                     .uri(torrentUrl)
+                    .header("User-Agent", USER_AGENT)
                     .retrieve()
                     .body(byte[].class);
 
