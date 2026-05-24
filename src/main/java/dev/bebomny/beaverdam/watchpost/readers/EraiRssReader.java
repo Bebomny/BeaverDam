@@ -11,7 +11,7 @@ import java.net.http.HttpClient;
 @Component
 public class EraiRssReader extends AbstractRssReader<Channel, EraiRssReaderItem> {
 
-    private static final String USER_AGENT = "BeaverBot - Qol Private Discord Bot - made by @Bebomny | Contact: contact@mail.sublimeseal.com";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0";
 
     public EraiRssReader() {
         super();
