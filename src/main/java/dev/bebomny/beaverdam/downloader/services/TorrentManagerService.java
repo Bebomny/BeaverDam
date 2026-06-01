@@ -3,6 +3,7 @@ package dev.bebomny.beaverdam.downloader.services;
 import dev.bebomny.beaverdam.downloader.client.QBittorrentClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -39,7 +40,7 @@ public class TorrentManagerService {
             //TODO: Alert when this fails
             byte[] torrentFileBytes = webClient.get()
                     .uri(torrentUrl)
-                    .header("User-Agent", USER_AGENT)
+                    .header(HttpHeaders.USER_AGENT, USER_AGENT)
                     .retrieve()
                     .body(byte[].class);
 
