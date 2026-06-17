@@ -1,8 +1,10 @@
 package dev.bebomny.beaverdam.watchpost.repos;
 
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesSearchResult;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
 import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,10 +21,39 @@ public interface ShowSeriesRepository extends JpaRepository<ShowSeries, Long> {
     List<ShowSeries> findByOrderByLastSeenDesc(Limit limit);
 
     @Query("SELECT s FROM ShowSeries s " +
+            "LEFT JOIN FETCH s.metadata " +
             "WHERE LOWER(s.seriesName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "ORDER BY LOCATE(LOWER(:search), LOWER(s.seriesName)) ASC, LENGTH(s.seriesName) ASC")
     List<ShowSeries> findBestMatchSeries(@Param("search") String search, Limit limit);
 
+    @Query("""
+                SELECT s FROM ShowSeries s
+                LEFT JOIN FETCH s.metadata m
+                WHERE LOWER(s.seriesName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(m.localizedName) LIKE LOWER(CONCAT('%', :search, '%'))
+                ORDER BY
+                    CASE
+                        WHEN LOWER(s.seriesName) LIKE LOWER(CONCAT(:search, '%')) THEN 1
+                        WHEN LOWER(m.localizedName) LIKE LOWER(CONCAT(:search, '%')) THEN 2
+                        WHEN LOWER(s.seriesName) LIKE LOWER(CONCAT('%', :search, '%')) THEN 3
+                        ELSE 4
+                    END ASC,
+                    LENGTH(s.seriesName) ASC
+            """)
+    List<ShowSeries> findBestMatchSeriesWithMetadataSearch(@Param("search") String search, Limit limit);
+
     @Query("SELECT s FROM ShowSeries s WHERE NOT EXISTS (SELECT 1 FROM ShowMetadata m WHERE m.showSeries = s)")
     List<ShowSeries> findSeriesWithoutMetadata();
+
+    @EntityGraph(attributePaths = "metadata")
+    Page<ShowSeries> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = "metadata")
+    Page<ShowSeries> findAllBySubmittedFalse(Pageable pageable);
+
+    Page<ShowSeries> findAllByMetadataNull(Pageable pageable);
+
+    Long countByAddedOnAfter(LocalDateTime date);
+
+    Long countByIsInterestingTrue();
 }

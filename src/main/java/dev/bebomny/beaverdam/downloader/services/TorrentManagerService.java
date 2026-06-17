@@ -3,6 +3,7 @@ package dev.bebomny.beaverdam.downloader.services;
 import dev.bebomny.beaverdam.downloader.client.QBittorrentClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -12,6 +13,8 @@ import java.net.http.HttpClient;
 @Slf4j
 @Service
 public class TorrentManagerService {
+
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0";
 
     private final QBittorrentClient qBittorrentClient;
     private final RestClient webClient;
@@ -34,8 +37,10 @@ public class TorrentManagerService {
         try {
             log.atInfo().log("Downloading .torrent file from: {}", torrentUrl);
 
+            //TODO: Alert when this fails
             byte[] torrentFileBytes = webClient.get()
                     .uri(torrentUrl)
+                    .header(HttpHeaders.USER_AGENT, USER_AGENT)
                     .retrieve()
                     .body(byte[].class);
 

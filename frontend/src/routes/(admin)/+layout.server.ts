@@ -6,5 +6,9 @@ export const load: LayoutServerLoad = async ({ locals }) => {
         throw redirect(303, '/leaderboard')
     }
 
-    return;
+    const userEmail = locals.userEmail || 'unknown@mail';
+
+    return {
+        userEmail: userEmail
+    };
 }

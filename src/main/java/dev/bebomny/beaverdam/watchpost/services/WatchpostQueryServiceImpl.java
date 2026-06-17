@@ -1,11 +1,10 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
-import dev.bebomny.beaverdam.common.dtos.AnimeItemDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.DownloadDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesSearchResult;
+import dev.bebomny.beaverdam.common.dtos.*;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
+import dev.bebomny.beaverdam.watchpost.entities.ShowMetadata;
+import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +21,7 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
 
     private final AnimeRssItemRepository animeItemRepository;
     private final ShowSeriesRepository showSeriesRepository;
+    private final WatchpostStatisticsService statisticsService;
 
     @Override
     @Transactional(readOnly = true)
@@ -68,7 +68,11 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                         series.getSeriesName(),
                         series.getIsInteresting(),
                         series.getIsIgnored(),
-                        series.getAutoDownload()
+                        series.getAutoDownload(),
+                        series.getSubmitted(),
+                        series.getCustomShareRatio(),
+                        series.getLastSeen(),
+                        series.getAddedOn()
                 ));
 
 //        return showSeriesRepository.findBestMatchSeries(name, Limit.of(1))
@@ -138,7 +142,7 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
                     .isInteresting(Boolean.TRUE.equals(item.getShowSeries().getIsInteresting()))
                     .isIgnored(Boolean.TRUE.equals(item.getShowSeries().getIsIgnored()))
                     .autoDownload(Boolean.TRUE.equals(item.getShowSeries().getAutoDownload()))
-                    .animeOnlineId(item.getShowSeries().getOnlineId())
+                    .customShareRatio(item.getShowSeries().getCustomShareRatio())
                     .malLink(item.getShowSeries().getMalLink());
 
             if (item.getShowSeries().getMetadata() != null) {
@@ -153,5 +157,91 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
         }
 
         return builder.build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ShowSeriesDetailsFullResult> getLatestShowSeries(boolean unsubmittedOnly, Pageable pageable) {
+        PageRequest pageRequest = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "addedOn")
+        );
+
+        Page<ShowSeries> entityPage = unsubmittedOnly ?
+                showSeriesRepository.findAllBySubmittedFalse(pageRequest)
+                : showSeriesRepository.findAll(pageRequest);
+
+        return entityPage.map(this::mapShowSeriesToFullDto);
+    }
+
+    private ShowSeriesDetailsFullResult mapShowSeriesToFullDto(ShowSeries showSeries) {
+        ShowMetadataFullResult metadataFullResult = null;
+        if (showSeries.getMetadata() != null) {
+            ShowMetadata metadata = showSeries.getMetadata();
+            metadataFullResult = ShowMetadataFullResult.builder()
+                    .metadataId(metadata.getId())
+                    .malId(metadata.getMalId())
+                    .anilistId(metadata.getAnilistId())
+                    .localizedName(metadata.getLocalizedName())
+                    .coverImageUrl(metadata.getCoverImageUrl())
+                    .synopsis(metadata.getSynopsis())
+                    .genres(metadata.getGenres())
+                    .status(metadata.getStatus())
+                    .build();
+        }
+
+        return ShowSeriesDetailsFullResult.builder()
+                .showSeriesId(showSeries.getId())
+                .showSeriesName(showSeries.getSeriesName())
+                .interesting(showSeries.getIsInteresting())
+                .ignored(showSeries.getIsIgnored())
+                .autoDownload(showSeries.getAutoDownload())
+                .submitted(showSeries.getSubmitted())
+                .customShareRatio(showSeries.getCustomShareRatio())
+                .lastSeen(showSeries.getLastSeen())
+                .addedOn(showSeries.getAddedOn())
+                .showMetadata(metadataFullResult)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ShowSeriesStateDetailsResult> getShowSeriesWithoutMetadata(Pageable pageable) {
+        Page<ShowSeries> entityPage = showSeriesRepository.findAllByMetadataNull(PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "addedOn")
+        ));
+
+        return entityPage.map(series -> ShowSeriesStateDetailsResult.builder()
+                        .id(series.getId())
+                        .name(series.getSeriesName())
+                        .interesting(series.getIsInteresting())
+                        .ignored(series.getIsIgnored())
+                        .autoDownload(series.getAutoDownload())
+                        .submitted(series.getSubmitted())
+                        .customShareRatio(series.getCustomShareRatio())
+                        .lastSeen(series.getLastSeen())
+                        .addedOn(series.getAddedOn())
+                        .build());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WatchpostStatsResult getStatistics() {
+        return statisticsService.calculateStatistics();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ShowSeriesDetailsFullResult> searchSeriesFullBestMatchByName(String prefix, int limit) {
+//        return showSeriesRepository.findBestMatchSeries(prefix, Limit.of(limit))
+        return showSeriesRepository.findBestMatchSeriesWithMetadataSearch(prefix, Limit.of(limit))
+                .stream()
+                .map(this::mapShowSeriesToFullDto)
+                .limit(limit)
+                .toList();
     }
 }

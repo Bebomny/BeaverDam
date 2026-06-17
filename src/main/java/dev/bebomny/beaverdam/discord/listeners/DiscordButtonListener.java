@@ -56,7 +56,7 @@ public class DiscordButtonListener extends ListenerAdapter {
                 discordActionService.publishButtonDownload(itemId);
 
                 MessageEmbed editedEmbed = new EmbedBuilder(event.getMessage().getEmbeds().getFirst())
-                        .addField("Downloaded started on", LocalDateTime.now().toString(), true)
+                        .addField("Download started on", LocalDateTime.now().toString(), true)
                         .build();
 
 //                event.editMessageEmbeds(editedEmbed).queue();

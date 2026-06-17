@@ -42,7 +42,7 @@ public class DiscordActionService {
     @Transactional
     public void publishButtonSetAsInteresting(Long animeItemId) {
         watchpostQueryApi.getShowSeriesIdForAnimeItem(animeItemId).ifPresent(seriesId ->
-                watchpostCommandApi.updateSeriesState(seriesId, ShowSeriesParam.INTERESTING, true)
+                watchpostCommandApi.updateShowSeriesParam(seriesId, ShowSeriesParam.INTERESTING, true)
         );
     }
 
@@ -50,6 +50,6 @@ public class DiscordActionService {
     public ShowSeriesStateDetailsResult updateShowSeries(Long showSeriesId, ShowSeriesParam showSeriesParam, Boolean newValue) {
 //        eventPublisher.publishEvent(new ShowSeriesUpdateParamEvent(showSeriesId, showSeriesParam, newValue));
 
-        return watchpostCommandApi.updateSeriesState(showSeriesId, showSeriesParam, newValue);
+        return watchpostCommandApi.updateShowSeriesParam(showSeriesId, showSeriesParam, newValue);
     }
 }

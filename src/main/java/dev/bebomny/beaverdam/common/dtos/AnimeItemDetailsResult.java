@@ -31,6 +31,7 @@ public record AnimeItemDetailsResult(
         boolean isIgnored,
         boolean autoDownload,
         boolean downloaded,
+        String customShareRatio,
         LocalDateTime downloadedOn,
 
         //Online details

@@ -6,7 +6,8 @@ import java.util.List;
 
 public class AniListDto {
     public record GraphQLRequest(String query, Object variables) {}
-    public record Variables(String search) {}
+    public record SearchVariables(String search) {}
+    public record IdVariables(Integer id) {}
 
     public record Response(Data data) {}
     public record Data(@JsonProperty("Media") Media media) {}

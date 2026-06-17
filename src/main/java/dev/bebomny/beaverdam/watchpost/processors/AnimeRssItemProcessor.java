@@ -1,6 +1,7 @@
 package dev.bebomny.beaverdam.watchpost.processors;
 
 import com.apptasticsoftware.rssreader.Item;
+import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.common.events.WatchpostNewAnimeItemEvent;
 import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
 import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
@@ -119,6 +120,14 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
         //update series
         series.setLastSeen(LocalDateTime.now());
 
+        //Fetch series metadata if exists
+        String localizedName = null;
+        String coverImageUrl = null;
+        if (series.getMetadata() != null) {
+            localizedName = series.getMetadata().getLocalizedName();
+            coverImageUrl = series.getMetadata().getCoverImageUrl();
+        }
+
         eventPublisher.publishEvent(WatchpostNewAnimeItemEvent.builder()
                 .animeItemId(newAnimeItem.getId())
                 .rawItemName(newAnimeItem.getRawItemName())
@@ -135,6 +144,8 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
                 .videoType(newVideoDetails.getVideoType())
                 .audioType(newVideoDetails.getAudioType())
                 .showSeriesId(series.getId())
+                .localizedName(localizedName)
+                .coverImageUrl(coverImageUrl)
                 .isInteresting(series.getIsInteresting())
                 .isIgnored(series.getIsIgnored())
                 .autoDownload(series.getAutoDownload())
@@ -142,5 +153,10 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
                 .malLink(series.getMalLink())
                 .build()
         );
+
+        if (series.getAutoDownload()) {
+            eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(
+                    newAnimeItem.getId(), null, "beaverdam"));
+        }
     }
 }

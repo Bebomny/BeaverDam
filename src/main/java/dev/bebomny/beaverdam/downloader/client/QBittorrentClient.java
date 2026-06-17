@@ -12,10 +12,7 @@ import org.springframework.web.client.RestClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -29,6 +26,7 @@ public class QBittorrentClient {
     private final QBittorrentProperties properties;
 
     private final AtomicReference<String> authCookie = new AtomicReference<>(null);
+    private final Object authLock = new Object();
 
     /**
      * Adds a torrent to qbittorrent
@@ -41,19 +39,30 @@ public class QBittorrentClient {
      */
     public void addTorrent(byte[] torrentBytes, String torrentName, String category, String tags, String ratioLimit) {
         if (authCookie.get() == null) {
-            authenticate();
+            synchronized (authLock) {
+                if (authCookie.get() == null) {
+                    authenticate();
+                }
+            }
         }
 
         try {
             executeAddTorrent(torrentBytes, torrentName, category, tags, ratioLimit);
         } catch (HttpClientErrorException.Forbidden e) {
             log.atInfo().log("qBittorrent session expired (403). Re-authenticating and retrying...");
-            authenticate();
+
+            String failedCookie = authCookie.get();
+            synchronized (authLock) {
+                if (failedCookie != null && failedCookie.equals(authCookie.get())) {
+                    authenticate();
+                }
+            }
+
             executeAddTorrent(torrentBytes, torrentName, category, tags, ratioLimit);
         }
     }
 
-    private synchronized void authenticate() {
+    private void authenticate() {
         log.atInfo().log("Authenticating with QBittorrent API...");
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -74,7 +83,7 @@ public class QBittorrentClient {
                 if (cookie.startsWith("SID=")) {
                     String sid = cookie.split(";")[0];
                     authCookie.set(sid);
-                    log.info("Successfully authenticated and cached new SID cookie. {}", sid);
+                    log.atInfo().log("Successfully authenticated and cached new SID cookie. {}", sid);
                     return;
                 }
             }
@@ -107,10 +116,10 @@ public class QBittorrentClient {
                     .header(HttpHeaders.USER_AGENT, USER_AGENT)
                     .body(requestBody)
                     .retrieve()
-                    .onStatus(status -> status.isSameCodeAs(HttpStatus.FORBIDDEN), (req, res) -> {
+                    .onStatus(status -> status.isSameCodeAs(HttpStatus.FORBIDDEN), (_, res) -> {
                         throw HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Forbidden", res.getHeaders(), null, null);
                     })
-                    .onStatus(HttpStatusCode::isError, (req, res) -> {
+                    .onStatus(HttpStatusCode::isError, (_, res) -> {
                         throw new RuntimeException("qBittorrent returned error code: " + res.getStatusCode());
                     })
                     .toEntity(String.class);
