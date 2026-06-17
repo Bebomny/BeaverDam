@@ -59,7 +59,8 @@ public class WatchpostScheduler {
                 feed.setLastErrorMessage(null);
                 rssFeedRepository.save(feed);
             } catch (Exception e) {
-                log.error("Network or Parsing error while fetching feed: {}", feed.getFeedName(), e);
+                //TODO: better error handling here, dont print the whole error, just save it an notify about it
+                log.atError().log("Network or Parsing error while fetching feed: {}", feed.getFeedName(), e);
 
                 feed.setLastErrorMessage(e.getClass().getSimpleName() + ": " + e.getMessage());
                 rssFeedRepository.save(feed);
