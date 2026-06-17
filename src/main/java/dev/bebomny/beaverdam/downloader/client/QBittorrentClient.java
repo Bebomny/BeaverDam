@@ -80,7 +80,7 @@ public class QBittorrentClient {
         List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
         if (cookies != null) {
             for (String cookie : cookies) {
-                if (cookie.startsWith("SID=")) {
+                if (cookie.startsWith("QBT_SID_8080=")) {
                     String sid = cookie.split(";")[0];
                     authCookie.set(sid);
                     log.atInfo().log("Successfully authenticated and cached new SID cookie. {}", sid);
