@@ -116,8 +116,8 @@
                         ID: {series.showSeriesId}
                     </h4>
 
-                    <h4 class="name-title" title={series.showMetadata.localizedName || series.showSeriesName}>
-                        {series.showMetadata.localizedName || series.showSeriesName}
+                    <h4 class="name-title" title={series.showMetadata?.localizedName || series.showSeriesName}>
+                        {series.showMetadata?.localizedName || series.showSeriesName}
                     </h4>
                 </div>
             </div>
