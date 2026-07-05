@@ -39,6 +39,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-json")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework.modulith:spring-modulith-starter-core")
     implementation("org.springframework.modulith:spring-modulith-starter-jpa")
