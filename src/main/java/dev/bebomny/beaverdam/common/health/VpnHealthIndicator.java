@@ -2,10 +2,12 @@ package dev.bebomny.beaverdam.common.health;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,14 +41,14 @@ public class VpnHealthIndicator implements HealthIndicator {
             Health.unknown().withDetail("status", "Initializing health check...").build()
     );
 
-    public VpnHealthIndicator(@Qualifier("vpnHttpClient") HttpClient vpnHttpClient, RestClient restClient, ObjectMapper objectMapper) {
+    public VpnHealthIndicator(@Qualifier("vpnHttpClient") HttpClient vpnHttpClient, RestClient restClient, ObjectProvider<ObjectMapper> objectMapperProvider) {
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(vpnHttpClient);
         this.vpnRestClient = RestClient.builder()
                 .requestFactory(requestFactory)
                 .build();
 
         this.localRestClient = restClient;
-        this.objectMapper = objectMapper;
+        this.objectMapper = objectMapperProvider.getIfAvailable(ObjectMapper::new);
     }
 
     @Override
