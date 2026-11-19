@@ -7,7 +7,7 @@ const BACKEND_URL = IS_DOCKER ? "http://beaverdam:8080" : "http://localhost:8080
 
 export const load: PageServerLoad = async ({ fetch }) => {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/discord/monitoredguilds`);
+        const response = await fetch(`${BACKEND_URL}/api/analytics/monitoredguilds`);
 
         if (!response.ok) {
             throw error(response.status, 'Failed to fetch guilds');

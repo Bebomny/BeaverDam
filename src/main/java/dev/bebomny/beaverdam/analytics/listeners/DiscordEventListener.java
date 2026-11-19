@@ -2,8 +2,12 @@ package dev.bebomny.beaverdam.analytics.listeners;
 
 import dev.bebomny.beaverdam.analytics.entities.DiscordVoiceSession;
 import dev.bebomny.beaverdam.analytics.entities.DiscordVoiceState;
+import dev.bebomny.beaverdam.analytics.repos.DiscordGuildRepository;
+import dev.bebomny.beaverdam.analytics.repos.DiscordUserRepository;
 import dev.bebomny.beaverdam.analytics.repos.DiscordVoiceSessionRepository;
 import dev.bebomny.beaverdam.analytics.repos.DiscordVoiceStateRepository;
+import dev.bebomny.beaverdam.common.events.DiscordGuildMetadataUpdatedEvent;
+import dev.bebomny.beaverdam.common.events.DiscordUserMetadataUpdatedEvent;
 import dev.bebomny.beaverdam.common.events.DiscordVoiceStateChangedEvent;
 import dev.bebomny.beaverdam.common.events.types.VoiceEventType;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +25,20 @@ public class DiscordEventListener {
 
     private final DiscordVoiceStateRepository voiceStateRepository;
     private final DiscordVoiceSessionRepository voiceSessionRepository;
+    private final DiscordGuildRepository discordGuildRepository;
+    private final DiscordUserRepository discordUserRepository;
 
     @EventListener
     @Async
     @Transactional
     public void onDiscordVoiceStateChangedEvent(DiscordVoiceStateChangedEvent event) {
+        if (event.guildId() != null && event.guildName() != null) {
+            discordGuildRepository.upsert(event.guildId(), event.guildName(), event.guildIconUrl());
+        }
+        if (event.userId() != null && event.username() != null) {
+            discordUserRepository.upsert(event.userId(), event.username(), event.userAvatarUrl());
+        }
+
         DiscordVoiceState voiceState = DiscordVoiceState.builder()
                 .guildId(event.guildId())
                 .userId(event.userId())
@@ -61,6 +74,24 @@ public class DiscordEventListener {
                             voiceSessionRepository.save(completedSession);
                         }
                     });
+        }
+    }
+
+    @EventListener
+    @Async
+    @Transactional
+    public void onDiscordGuildMetadataUpdated(DiscordGuildMetadataUpdatedEvent event) {
+        if (event.guildId() != null && event.guildName() != null) {
+            discordGuildRepository.upsert(event.guildId(), event.guildName(), event.iconUrl());
+        }
+    }
+
+    @EventListener
+    @Async
+    @Transactional
+    public void onDiscordUserMetadataUpdated(DiscordUserMetadataUpdatedEvent event) {
+        if (event.userId() != null && event.username() != null) {
+            discordUserRepository.upsert(event.userId(), event.username(), event.avatarUrl());
         }
     }
 }

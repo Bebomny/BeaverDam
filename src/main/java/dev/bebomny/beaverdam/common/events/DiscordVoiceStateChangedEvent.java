@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 
 @Builder
 public record DiscordVoiceStateChangedEvent(
-        Long guildId, Long userId, String username,
+        Long guildId, String guildName, String guildIconUrl,
+        Long userId, String username, String userAvatarUrl,
         LocalDateTime timestamp, VoiceEventType eventType, ActionTrigger actionTrigger,
         Long channelId, Long previousChannelId, Boolean stateValue
 ) {
