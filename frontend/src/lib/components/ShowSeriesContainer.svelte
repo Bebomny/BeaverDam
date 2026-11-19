@@ -268,6 +268,7 @@
         text-wrap: wrap;
         flex-shrink: 99999;
         color: var(--subtext-color);
+        max-width: 50%;
     }
 
     .series-image-container {

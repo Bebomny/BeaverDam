@@ -80,7 +80,7 @@ public class QBittorrentClient {
         List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
         if (cookies != null) {
             for (String cookie : cookies) {
-                if (cookie.startsWith("SID=")) {
+                if (cookie.startsWith("QBT_SID_8080=")) {
                     String sid = cookie.split(";")[0];
                     authCookie.set(sid);
                     log.atInfo().log("Successfully authenticated and cached new SID cookie. {}", sid);
@@ -120,7 +120,13 @@ public class QBittorrentClient {
                         throw HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Forbidden", res.getHeaders(), null, null);
                     })
                     .onStatus(HttpStatusCode::isError, (_, res) -> {
-                        throw new RuntimeException("qBittorrent returned error code: " + res.getStatusCode());
+                        if (res.getStatusCode() == HttpStatus.CONFLICT) {
+                            // Torrent already in qbit
+                            log.atWarn().log("Torrent {} already acquired", torrentName);
+                        } else {
+                            throw new RuntimeException("qBittorrent returned error code: " + res.getStatusCode());
+                        }
+
                     })
                     .toEntity(String.class);
 
@@ -131,7 +137,7 @@ public class QBittorrentClient {
                 log.atError().log("qBittorrent rejected the torrent '{}'! Returned 'Fails.'", torrentName);
 
                 throw new RuntimeException("qBittorrent failed to add the torrent.");
-            } else {
+            } else if (response.getStatusCode().is2xxSuccessful()) {
                 log.atInfo().log("Successfully added torrent to QBittorrent: {}", torrentName);
             }
 

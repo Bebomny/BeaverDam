@@ -116,8 +116,8 @@
                         ID: {series.showSeriesId}
                     </h4>
 
-                    <h4 class="name-title" title={series.showMetadata.localizedName || series.showSeriesName}>
-                        {series.showMetadata.localizedName || series.showSeriesName}
+                    <h4 class="name-title" title={series.showMetadata?.localizedName || series.showSeriesName}>
+                        {series.showMetadata?.localizedName || series.showSeriesName}
                     </h4>
                 </div>
             </div>
@@ -147,7 +147,7 @@
         >
             <div class="modal-header">
                 <div class="title-header-section">
-                    <h3 class="title-header">{selectedSeries.showMetadata.localizedName || selectedSeries.showSeriesName}</h3>
+                    <h3 class="title-header">{selectedSeries.showMetadata?.localizedName || selectedSeries.showSeriesName}</h3>
                     <span class="subtitle-header">{selectedSeries.showSeriesName}</span>
                 </div>
                 <button class="close-btn" type="button" aria-label="Close" tabindex="0"
