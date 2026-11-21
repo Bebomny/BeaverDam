@@ -53,13 +53,18 @@ public class DiscordButtonListener extends ListenerAdapter {
 
         switch (actionType) {
             case ANIME_ITEM_DOWNLOAD -> {
-                discordActionService.publishButtonDownload(itemId);
+                boolean downloadRequested = discordActionService.publishButtonDownload(itemId);
+                if (!downloadRequested) {
+                    event.getHook().sendMessage(String.format("Anime item with id %d no longer exists.", itemId))
+                            .setEphemeral(true)
+                            .queue();
+                    return;
+                }
 
                 MessageEmbed editedEmbed = new EmbedBuilder(event.getMessage().getEmbeds().getFirst())
                         .addField("Download started on", LocalDateTime.now().toString(), true)
                         .build();
 
-//                event.editMessageEmbeds(editedEmbed).queue();
                 event.getHook().editOriginalEmbeds(editedEmbed).queue();
             }
 

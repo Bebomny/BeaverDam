@@ -1,5 +1,6 @@
 package dev.bebomny.beaverdam.watchpost.processors;
 
+import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.dto.EraiRssReaderItem;
 import dev.bebomny.beaverdam.watchpost.parsers.EraiMetadataParser;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
@@ -18,8 +19,9 @@ public class EraiRssItemProcessor extends AnimeRssItemProcessor<EraiRssReaderIte
            VideoDetailsRepository videoDetailsRepo,
            RssFeedRepository rssFeedRepo,
            ApplicationEventPublisher eventPublisher,
+           WatchpostCommandApi watchpostCommandApi,
            EraiMetadataParser eraiParser) {
-        super(itemRepo, showSeriesRepo, videoDetailsRepo, rssFeedRepo, eventPublisher, eraiParser);
+        super(itemRepo, showSeriesRepo, videoDetailsRepo, rssFeedRepo, eventPublisher, watchpostCommandApi, eraiParser);
     }
 
     @Override

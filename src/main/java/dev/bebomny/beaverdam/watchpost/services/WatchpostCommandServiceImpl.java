@@ -3,17 +3,21 @@ package dev.bebomny.beaverdam.watchpost.services;
 import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
+import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.dto.AniListDto;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
 import dev.bebomny.beaverdam.watchpost.entities.ShowMetadata;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
+import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowMetadataRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +28,13 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
 
     private final RssFeedRepository rssFeedRepository;
     private final ShowSeriesRepository showSeriesRepository;
+    private final AnimeRssItemRepository animeRssItemRepository;
     private final AniListApiService aniListApiService;
     private final ShowMetadataRepository showMetadataRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Value("${watchpost.downloader.default_tag:beaverdam}")
+    private String defaultDownloadTag = "beaverdam";
 
     @Override
     @Transactional
@@ -170,5 +179,18 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
         series.setSubmitted(true);
 
         showSeriesRepository.save(series);
+    }
+
+    @Override
+    @Transactional
+    public boolean requestAnimeItemDownload(Long animeItemId) {
+        if (!animeRssItemRepository.existsById(animeItemId)) {
+            log.atWarn().log("Requested download for non-existent anime item Id: {}", animeItemId);
+            return false;
+        }
+
+        eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(animeItemId, null, defaultDownloadTag));
+        log.atInfo().log("Published download request for anime item Id: {} with tag '{}'", animeItemId, defaultDownloadTag);
+        return true;
     }
 }

@@ -2,7 +2,6 @@ package dev.bebomny.beaverdam.discord.services;
 
 import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.common.events.AnimeItemDisplayedEvent;
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;
 import dev.bebomny.beaverdam.discord.repos.DiscordUiMessageRepository;
@@ -34,9 +33,8 @@ public class DiscordActionService {
         eventPublisher.publishEvent(new AnimeItemDisplayedEvent(partialMapping.getTargetItemId()));
     }
 
-    @Transactional
-    public void publishButtonDownload(Long targetItemId) {
-        eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(targetItemId, null, "beaverdam"));
+    public boolean publishButtonDownload(Long targetItemId) {
+        return watchpostCommandApi.requestAnimeItemDownload(targetItemId);
     }
 
     @Transactional

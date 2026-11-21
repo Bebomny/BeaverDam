@@ -1,10 +1,10 @@
 package dev.bebomny.beaverdam.watchpost.processors;
 
 import com.apptasticsoftware.rssreader.Item;
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
 import dev.bebomny.beaverdam.common.events.WatchpostNewAnimeItemEvent;
 import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
 import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
+import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.dto.AnimeMetadata;
 import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
@@ -32,6 +32,7 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
     protected final VideoDetailsRepository videoDetailsRepository;
     protected final RssFeedRepository rssFeedRepository;
     protected final ApplicationEventPublisher eventPublisher;
+    protected final WatchpostCommandApi watchpostCommandApi;
 
     private final AnimeMetadataParser<T> metadataParser;
 
@@ -155,8 +156,7 @@ public abstract class AnimeRssItemProcessor<T extends Item> implements ContentPr
         );
 
         if (series.getAutoDownload()) {
-            eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(
-                    newAnimeItem.getId(), null, "beaverdam"));
+            watchpostCommandApi.requestAnimeItemDownload(newAnimeItem.getId());
         }
     }
 }
