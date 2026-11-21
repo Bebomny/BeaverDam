@@ -21,6 +21,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -78,39 +80,10 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
                 .orElseThrow(() -> new IllegalArgumentException("Series id: " + targetItemId + "not found"));
 
         switch (param) {
-            case INTERESTING -> {
-                if (newValue) {
-                    series.setIsInteresting(true);
-                    series.setIsIgnored(false);
-                } else {
-                    series.setIsInteresting(false);
-                    series.setAutoDownload(false);
-                }
-            }
-
-            case IGNORED ->  {
-                if (newValue) {
-                    series.setIsIgnored(true);
-                    series.setIsInteresting(false);
-                    series.setAutoDownload(false);
-                } else {
-                    series.setIsIgnored(false);
-                }
-            }
-
-            case AUTODOWNLOAD ->  {
-                if (newValue) {
-                    series.setAutoDownload(true);
-                    series.setIsInteresting(true);
-                    series.setIsIgnored(false);
-                } else {
-                    series.setAutoDownload(false);
-                }
-            }
-
-            case SUBMITTED -> {
-                series.setSubmitted(true);
-            }
+            case INTERESTING -> series.markInteresting(newValue);
+            case IGNORED -> series.markIgnored(newValue);
+            case AUTODOWNLOAD -> series.setAutoDownloadEnabled(newValue);
+            case SUBMITTED -> series.markSubmitted();
         }
 
 //        showSeriesRepository.save(series);
@@ -169,14 +142,14 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
     @Transactional
     public void updateShowSeriesState(Long showSeriesId, ShowSeriesUpdateRequest request) {
         ShowSeries series = showSeriesRepository.findById(showSeriesId)
-                .orElseThrow(() -> new IllegalArgumentException("Series id: " + showSeriesId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("Series id: " + showSeriesId + " not found"));
 
-        if (request.interesting() != null) series.setIsInteresting(request.interesting());
-        if (request.ignored() != null) series.setIsIgnored(request.ignored());
-        if (request.autoDownload() != null) series.setAutoDownload(request.autoDownload());
-        if (request.customShareRatio() != null) series.setCustomShareRatio(request.customShareRatio());
-
-        series.setSubmitted(true);
+        series.applyStateUpdate(
+                request.interesting(),
+                request.ignored(),
+                request.autoDownload(),
+                request.customShareRatio()
+        );
 
         showSeriesRepository.save(series);
     }

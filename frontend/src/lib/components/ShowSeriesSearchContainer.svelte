@@ -48,9 +48,27 @@
     function updateSeries(param: 'interesting' | 'ignored' | 'autoDownload') {
         if (!selectedSeries) return;
 
-        selectedSeries[param] = !selectedSeries[param];
-
-        return;
+        const nextValue = !selectedSeries[param];
+        if (param === 'interesting') {
+            selectedSeries.interesting = nextValue;
+            if (nextValue) {
+                selectedSeries.ignored = false;
+            } else {
+                selectedSeries.autoDownload = false;
+            }
+        } else if (param === 'ignored') {
+            selectedSeries.ignored = nextValue;
+            if (nextValue) {
+                selectedSeries.interesting = false;
+                selectedSeries.autoDownload = false;
+            }
+        } else if (param === 'autoDownload') {
+            selectedSeries.autoDownload = nextValue;
+            if (nextValue) {
+                selectedSeries.interesting = true;
+                selectedSeries.ignored = false;
+            }
+        }
     }
 
     async function submitSeries() {
