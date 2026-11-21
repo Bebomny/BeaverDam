@@ -3,16 +3,12 @@ package dev.bebomny.beaverdam.discord.commands.management;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.discord.commands.ManagementCommand;
-import dev.bebomny.beaverdam.discord.entities.MonitoredContainer;
-import dev.bebomny.beaverdam.discord.listeners.DiscordConsoleListener;
-import dev.bebomny.beaverdam.discord.repos.MonitoredContainerRepository;
-import dev.bebomny.beaverdam.dockerintegration.DockerCommandApi;
+import dev.bebomny.beaverdam.discord.services.DiscordContainerMonitorService;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,19 +18,15 @@ import java.util.Objects;
 @Component
 public class MonitorContainerSlshCmd extends SlashCommand implements ManagementCommand {
 
-    private final MonitoredContainerRepository monitoredContainerRepository;
-    private final DockerCommandApi dockerCommandApi;
-    private final DiscordConsoleListener discordConsoleListener;
+    private final DiscordContainerMonitorService containerMonitorService;
 
-    public MonitorContainerSlshCmd(MonitoredContainerRepository containerRepo, DockerCommandApi dockerCommandApi, @Lazy DiscordConsoleListener discordConsoleListener) {
+    public MonitorContainerSlshCmd(DiscordContainerMonitorService containerMonitorService) {
         this.name = "monitorcontainer";
         this.help = "Hooks the server output and prints it to the chat";
         this.ownerCommand = true;
         this.contexts = new InteractionContextType[]{InteractionContextType.GUILD};
 
-        this.monitoredContainerRepository = containerRepo;
-        this.dockerCommandApi = dockerCommandApi;
-        this.discordConsoleListener = discordConsoleListener;
+        this.containerMonitorService = containerMonitorService;
 
         this.options = List.of(
                 new OptionData(OptionType.STRING, "container", "The name of the container to monitor", true)
@@ -59,17 +51,8 @@ public class MonitorContainerSlshCmd extends SlashCommand implements ManagementC
             String runAs = event.getOption("run_as", "1000", OptionMapping::getAsString);
             boolean autoAttach = event.getOption("auto_attach", false, OptionMapping::getAsBoolean);
 
-            MonitoredContainer mapping = MonitoredContainer.builder()
-                    .containerName(containerName)
-                    .discordChannelId(channelId)
-                    .formatterType(formatter)
-                    .build();
-
-            monitoredContainerRepository.save(mapping);
-            log.atInfo().log("Saved Discord MonitoredContainer mapping for container: {}", containerName);
-
-            discordConsoleListener.registerChannel(channelId, containerName);
-            dockerCommandApi.registerNewContainer(containerName, strategy, runAs, autoAttach);
+            containerMonitorService.registerMonitoredContainer(
+                    containerName, channelId, formatter, strategy, runAs, autoAttach);
 
             event.getHook().sendMessage(
                     String.format("Successfully linked container '%s'.\nLogs will be sent to <#%s> using formatter '%s'.",
