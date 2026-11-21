@@ -14,22 +14,31 @@ import org.springframework.stereotype.Component;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class StatusEventListener {
 
+    private static final String WATCHPOST_MODULE = "watchpost";
+    private static final String ANIME_RSS_ITEM_TYPE = "anime_rss_item";
+
     private final JDA jda;
     private final DiscordUiMessageRepository uiMsgRepository;
 
     @ApplicationModuleListener
     public void onAnimeItemDownloadFinish(AnimeItemDownloadFinishedEvent event) {
-        DiscordUiMessage mapping = uiMsgRepository.findByTargetItemId(event.animeItemId()).getFirst();
-        if (mapping == null) {
-            log.atWarn().log("Failed to retrieve a uiMapping after a DownloadFinishedEvent for id {}", event.animeItemId());
+        Optional<DiscordUiMessage> mappingOpt = uiMsgRepository
+                .findFirstByTargetModuleAndTargetItemTypeAndTargetItemId(
+                        WATCHPOST_MODULE, ANIME_RSS_ITEM_TYPE, event.animeItemId());
+
+        if (mappingOpt.isEmpty()) {
+            log.atInfo().log("No Discord UI message mapping found for anime item {}; skipping embed update", event.animeItemId());
             return;
         }
+
+        DiscordUiMessage mapping = mappingOpt.get();
 
         TextChannel channel = jda.getTextChannelById(mapping.getDiscordChannelId());
         if (channel == null) {
