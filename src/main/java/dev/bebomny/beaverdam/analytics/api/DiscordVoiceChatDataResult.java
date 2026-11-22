@@ -1,0 +1,13 @@
+package dev.bebomny.beaverdam.analytics.api;
+
+import lombok.Builder;
+
+@Builder
+public record DiscordVoiceChatDataResult(
+        String username, Long userId, String userIconUrl,
+        Long totalSecondsSpent,
+        Long selfMuteCount, Long selfDeafenCount,
+        Long serverMuteCount, Long serverDeafenCount,
+        Long streamCount, Long suppressCount
+) {
+}

@@ -1,14 +1,14 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.events.WatchpostNewAnimeItemEvent;
-import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
-import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
 import dev.bebomny.beaverdam.common.helpers.FileFormatter;
 import dev.bebomny.beaverdam.discord.ButtonActionType;
-import dev.bebomny.beaverdam.discord.services.DiscordMessagingService;
 import dev.bebomny.beaverdam.discord.TargetChannel;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;
+import dev.bebomny.beaverdam.discord.helpers.FormatHelper;
+import dev.bebomny.beaverdam.discord.services.DiscordMessagingService;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.watchpost.events.WatchpostNewAnimeItemEvent;
+import dev.bebomny.beaverdam.watchpost.events.WatchpostNewShowSeriesEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,7 +43,7 @@ public class WatchpostEventListener {
         MessageEmbed embed = createNewAnimeItemEmbed(event);
 
         List<Button> buttons = new ArrayList<>();
-        buttons.add(Button.link(AnimeHelper.encodeURL(event.fileLink()), "Torrent File"));
+        buttons.add(Button.link(FormatHelper.encodeUrl(event.fileLink()), "Torrent File"));
         buttons.add(ButtonActionType.ANIME_ITEM_DOWNLOAD.createButton());
         if (!event.isInteresting()) {
             buttons.add(ButtonActionType.ANIME_ITEM_SET_AS_INTERESTING.createButton());

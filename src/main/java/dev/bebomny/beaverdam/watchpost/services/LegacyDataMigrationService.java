@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
-import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
+import dev.bebomny.beaverdam.watchpost.helpers.AnimeHelper;
 import dev.bebomny.beaverdam.common.helpers.FileFormatter;
 import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;

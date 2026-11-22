@@ -1,7 +1,7 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesParam;
 import dev.bebomny.beaverdam.discord.ButtonActionType;
 import dev.bebomny.beaverdam.discord.services.DiscordActionService;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;

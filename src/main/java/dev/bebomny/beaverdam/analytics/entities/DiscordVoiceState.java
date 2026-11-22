@@ -1,7 +1,7 @@
 package dev.bebomny.beaverdam.analytics.entities;
 
-import dev.bebomny.beaverdam.common.events.types.ActionTrigger;
-import dev.bebomny.beaverdam.common.events.types.VoiceEventType;
+import dev.bebomny.beaverdam.analytics.api.ActionTrigger;
+import dev.bebomny.beaverdam.analytics.api.VoiceEventType;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,6 +1,5 @@
 package dev.bebomny.beaverdam.watchpost.listeners;
 
-import dev.bebomny.beaverdam.common.events.WatchpostRefetchFeedsRequestEvent;
 import dev.bebomny.beaverdam.watchpost.WatchpostScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,7 @@ public class ActionRequestListener {
 
     @Async
     @EventListener
-    public void onManualFetchRequest(WatchpostRefetchFeedsRequestEvent event) {
+    public void onManualFetchRequest(WatchpostRefetchRequestedEvent event) {
         log.atInfo().log("Manual Rss feed refetch triggered from {} by {}", event.source(), event.requester());
 
         try {

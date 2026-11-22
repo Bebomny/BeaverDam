@@ -2,7 +2,7 @@ package dev.bebomny.beaverdam.analytics.repos;
 
 import dev.bebomny.beaverdam.analytics.entities.DiscordVoiceState;
 import dev.bebomny.beaverdam.analytics.entities.DiscordVoiceTimeProjection;
-import dev.bebomny.beaverdam.common.events.types.VoiceEventType;
+import dev.bebomny.beaverdam.analytics.api.VoiceEventType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

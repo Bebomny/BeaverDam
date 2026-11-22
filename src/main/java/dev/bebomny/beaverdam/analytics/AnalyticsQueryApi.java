@@ -1,9 +1,9 @@
 package dev.bebomny.beaverdam.analytics;
 
-import dev.bebomny.beaverdam.common.dtos.DiscordGuildVoiceChatDataResult;
-import dev.bebomny.beaverdam.common.dtos.DiscordGuildVoiceTimesResult;
-import dev.bebomny.beaverdam.common.dtos.DiscordMonitoredGuildResult;
-import dev.bebomny.beaverdam.common.dtos.DiscordVoiceTimeResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordGuildVoiceChatDataResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordGuildVoiceTimesResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordMonitoredGuildResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordVoiceTimeResult;
 
 import java.util.List;
 import java.util.Map;

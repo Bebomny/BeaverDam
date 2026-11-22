@@ -1,10 +1,10 @@
 package dev.bebomny.beaverdam.web.controllers;
 
 import dev.bebomny.beaverdam.analytics.AnalyticsQueryApi;
-import dev.bebomny.beaverdam.common.dtos.DiscordGuildVoiceChatDataResult;
-import dev.bebomny.beaverdam.common.dtos.DiscordGuildVoiceTimesResult;
-import dev.bebomny.beaverdam.common.dtos.DiscordMonitoredGuildResult;
-import dev.bebomny.beaverdam.common.dtos.DiscordVoiceTimeResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordGuildVoiceChatDataResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordGuildVoiceTimesResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordMonitoredGuildResult;
+import dev.bebomny.beaverdam.analytics.api.DiscordVoiceTimeResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

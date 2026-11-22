@@ -1,12 +1,11 @@
 package dev.bebomny.beaverdam.discord.services;
 
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.events.AnimeItemDisplayedEvent;
-import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;
 import dev.bebomny.beaverdam.discord.repos.DiscordUiMessageRepository;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesParam;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

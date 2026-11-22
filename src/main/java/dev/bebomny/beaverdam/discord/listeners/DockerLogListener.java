@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.common.events.DockerContainerLogEvent;
+import dev.bebomny.beaverdam.dockerintegration.events.DockerContainerLogEvent;
 import dev.bebomny.beaverdam.discord.services.DiscordLogBatchingService;
 import dev.bebomny.beaverdam.discord.formatters.DiscordLogFormatter;
 import dev.bebomny.beaverdam.discord.formatters.FormatterRegistry;

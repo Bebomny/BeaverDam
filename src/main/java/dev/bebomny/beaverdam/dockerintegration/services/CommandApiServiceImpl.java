@@ -2,7 +2,7 @@ package dev.bebomny.beaverdam.dockerintegration.services;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
-import dev.bebomny.beaverdam.common.dtos.DockerPublishedServer;
+import dev.bebomny.beaverdam.dockerintegration.api.DockerPublishedServer;
 import dev.bebomny.beaverdam.dockerintegration.DockerCommandApi;
 import dev.bebomny.beaverdam.dockerintegration.entities.DockerContainerConfig;
 import dev.bebomny.beaverdam.dockerintegration.repos.DockerContainerConfigRepository;

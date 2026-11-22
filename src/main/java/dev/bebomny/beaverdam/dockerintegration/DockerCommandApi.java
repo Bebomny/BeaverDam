@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.dockerintegration;
 
-import dev.bebomny.beaverdam.common.dtos.DockerPublishedServer;
+import dev.bebomny.beaverdam.dockerintegration.api.DockerPublishedServer;
 
 import java.util.List;
 

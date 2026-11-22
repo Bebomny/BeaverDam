@@ -1,8 +1,6 @@
 package dev.bebomny.beaverdam.discord.services;
 
 import dev.bebomny.beaverdam.analytics.AnalyticsQueryApi;
-import dev.bebomny.beaverdam.common.events.DiscordGuildMetadataUpdatedEvent;
-import dev.bebomny.beaverdam.common.events.DiscordUserMetadataUpdatedEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

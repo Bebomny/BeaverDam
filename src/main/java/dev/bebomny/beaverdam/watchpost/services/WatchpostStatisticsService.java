@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
-import dev.bebomny.beaverdam.common.dtos.WatchpostStatsResult;
+import dev.bebomny.beaverdam.watchpost.api.WatchpostStatsResult;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowSeriesRepository;
 import lombok.RequiredArgsConstructor;

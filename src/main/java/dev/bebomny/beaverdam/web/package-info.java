@@ -1,5 +1,11 @@
 @ApplicationModule(
-        allowedDependencies = {"watchpost", "analytics", "common"}
+        allowedDependencies = {
+                "watchpost",
+                "watchpost :: api",
+                "watchpost :: events",
+                "analytics",
+                "analytics :: api"
+        }
 )
 package dev.bebomny.beaverdam.web;
 

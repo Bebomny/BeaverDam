@@ -1,9 +1,10 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
-import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadRequestEvent;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesParam;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesUpdateRequest;
+import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;

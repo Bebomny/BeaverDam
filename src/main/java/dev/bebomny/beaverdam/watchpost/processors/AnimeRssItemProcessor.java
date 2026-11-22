@@ -1,9 +1,9 @@
 package dev.bebomny.beaverdam.watchpost.processors;
 
 import com.apptasticsoftware.rssreader.Item;
-import dev.bebomny.beaverdam.common.events.WatchpostNewAnimeItemEvent;
-import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
-import dev.bebomny.beaverdam.common.helpers.AnimeHelper;
+import dev.bebomny.beaverdam.watchpost.events.WatchpostNewAnimeItemEvent;
+import dev.bebomny.beaverdam.watchpost.events.WatchpostNewShowSeriesEvent;
+import dev.bebomny.beaverdam.watchpost.helpers.AnimeHelper;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.dto.AnimeMetadata;
 import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;

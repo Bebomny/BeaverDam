@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.web.controllers;
 
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesUpdateRequest;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import dev.bebomny.beaverdam.web.services.SseNotificationService;

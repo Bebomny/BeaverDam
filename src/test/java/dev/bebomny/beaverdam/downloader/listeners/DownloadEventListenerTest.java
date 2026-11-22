@@ -1,10 +1,8 @@
 package dev.bebomny.beaverdam.downloader.listeners;
 
-import dev.bebomny.beaverdam.common.dtos.DownloadDetailsResult;
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadFinishedEvent;
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadFinishedEvent;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadRequestEvent;
 import dev.bebomny.beaverdam.downloader.services.TorrentManagerService;
-import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,16 +10,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DownloadEventListenerTest {
 
-    @Mock
-    private WatchpostQueryApi watchpostQueryApi;
     @Mock
     private TorrentManagerService torrentManagerService;
     @Mock
@@ -31,21 +25,21 @@ class DownloadEventListenerTest {
 
     @BeforeEach
     void setUp() {
-        listener = new DownloadEventListener(watchpostQueryApi, torrentManagerService, eventPublisher);
+        listener = new DownloadEventListener(torrentManagerService, eventPublisher);
     }
 
     @Test
     void onDownloadRequestedPublishesFinishedEventWhenDownloadSucceeds() {
-        DownloadDetailsResult details = new DownloadDetailsResult(
+        TorrentDownloadRequestEvent request = new TorrentDownloadRequestEvent(
                 42L,
                 "https://example.com/ep1.torrent",
-                "Lycoris Recoil",
-                "01",
+                "Lycoris Recoil - 01",
+                "anime",
+                "beaverdam",
                 "2.0"
         );
-        when(watchpostQueryApi.getDownloadDetailsForAnimeItemById(42L)).thenReturn(Optional.of(details));
 
-        listener.onDownloadRequested(new AnimeItemDownloadRequestEvent(42L, "anime", "beaverdam"));
+        listener.onDownloadRequested(request);
 
         verify(torrentManagerService).processDownload(
                 "https://example.com/ep1.torrent",
@@ -54,34 +48,24 @@ class DownloadEventListenerTest {
                 "beaverdam",
                 "2.0"
         );
-        verify(eventPublisher).publishEvent(new AnimeItemDownloadFinishedEvent(42L));
-    }
-
-    @Test
-    void onDownloadRequestedDoesNotPublishFinishedEventWhenDetailsMissing() {
-        when(watchpostQueryApi.getDownloadDetailsForAnimeItemById(42L)).thenReturn(Optional.empty());
-
-        listener.onDownloadRequested(new AnimeItemDownloadRequestEvent(42L, null, "beaverdam"));
-
-        verifyNoInteractions(torrentManagerService);
-        verifyNoInteractions(eventPublisher);
+        verify(eventPublisher).publishEvent(new TorrentDownloadFinishedEvent(42L));
     }
 
     @Test
     void onDownloadRequestedDoesNotPublishFinishedEventWhenTorrentProcessingFails() {
-        DownloadDetailsResult details = new DownloadDetailsResult(
+        TorrentDownloadRequestEvent request = new TorrentDownloadRequestEvent(
                 42L,
                 "https://example.com/ep1.torrent",
-                "Lycoris Recoil",
-                "01",
+                "Lycoris Recoil - 01",
+                null,
+                "beaverdam",
                 "2.0"
         );
-        when(watchpostQueryApi.getDownloadDetailsForAnimeItemById(42L)).thenReturn(Optional.of(details));
         doThrow(new RuntimeException("qBittorrent offline"))
                 .when(torrentManagerService)
                 .processDownload(anyString(), anyString(), any(), any(), any());
 
-        assertThatThrownBy(() -> listener.onDownloadRequested(new AnimeItemDownloadRequestEvent(42L, null, "beaverdam")))
+        assertThatThrownBy(() -> listener.onDownloadRequested(request))
                 .isInstanceOf(RuntimeException.class);
 
         verifyNoInteractions(eventPublisher);

@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.web.controllers;
 
-import dev.bebomny.beaverdam.common.dtos.*;
+import dev.bebomny.beaverdam.watchpost.api.*;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import dev.bebomny.beaverdam.web.security.AdminOnly;

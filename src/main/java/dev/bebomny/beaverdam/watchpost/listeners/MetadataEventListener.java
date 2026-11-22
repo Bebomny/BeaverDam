@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.watchpost.listeners;
 
-import dev.bebomny.beaverdam.common.events.WatchpostNewShowSeriesEvent;
+import dev.bebomny.beaverdam.watchpost.events.WatchpostNewShowSeriesEvent;
 import dev.bebomny.beaverdam.watchpost.dto.AniListDto;
 import dev.bebomny.beaverdam.watchpost.entities.ShowMetadata;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;

@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.discord.formatters;
 
-import dev.bebomny.beaverdam.common.events.DockerContainerLogEvent;
+import dev.bebomny.beaverdam.dockerintegration.events.DockerContainerLogEvent;
 
 public class DefaultLogFormatter implements DiscordLogFormatter {
 

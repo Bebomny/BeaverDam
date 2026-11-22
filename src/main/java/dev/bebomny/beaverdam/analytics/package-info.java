@@ -1,5 +1,5 @@
 @ApplicationModule(
-        allowedDependencies = {"common"}
+        allowedDependencies = {}
 )
 package dev.bebomny.beaverdam.analytics;
 

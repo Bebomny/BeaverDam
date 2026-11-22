@@ -1,8 +1,8 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadFinishedEvent;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;
 import dev.bebomny.beaverdam.discord.repos.DiscordUiMessageRepository;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadFinishedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,13 +28,13 @@ public class StatusEventListener {
     private final DiscordUiMessageRepository uiMsgRepository;
 
     @ApplicationModuleListener
-    public void onAnimeItemDownloadFinish(AnimeItemDownloadFinishedEvent event) {
+    public void onAnimeItemDownloadFinish(TorrentDownloadFinishedEvent event) {
         Optional<DiscordUiMessage> mappingOpt = uiMsgRepository
                 .findFirstByTargetModuleAndTargetItemTypeAndTargetItemId(
-                        WATCHPOST_MODULE, ANIME_RSS_ITEM_TYPE, event.animeItemId());
+                        WATCHPOST_MODULE, ANIME_RSS_ITEM_TYPE, event.referenceId());
 
         if (mappingOpt.isEmpty()) {
-            log.atInfo().log("No Discord UI message mapping found for anime item {}; skipping embed update", event.animeItemId());
+            log.atInfo().log("No Discord UI message mapping found for anime item {}; skipping embed update", event.referenceId());
             return;
         }
 
@@ -43,7 +43,7 @@ public class StatusEventListener {
         TextChannel channel = jda.getTextChannelById(mapping.getDiscordChannelId());
         if (channel == null) {
             log.atWarn().log("Channel resolution failed for channel id {} from item id {}",
-                    mapping.getDiscordChannelId(), event.animeItemId());
+                    mapping.getDiscordChannelId(), event.referenceId());
             return;
         }
 
@@ -57,7 +57,7 @@ public class StatusEventListener {
             newEmbed.setColor(Color.GREEN);
 
             message.editMessageEmbeds(newEmbed.build()).queue();
-        }, error -> log.atWarn().log("Failed to edit a message for item {}, {}", event.animeItemId(), error.getMessage()));
+        }, error -> log.atWarn().log("Failed to edit a message for item {}, {}", event.referenceId(), error.getMessage()));
     }
 
 }

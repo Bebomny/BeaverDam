@@ -1,12 +1,13 @@
 package dev.bebomny.beaverdam.watchpost.services;
 
-import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
-import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadRequestEvent;
 import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
+import dev.bebomny.beaverdam.watchpost.api.RssFeedSaveResult;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesParam;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesUpdateRequest;
 import dev.bebomny.beaverdam.watchpost.dto.AniListDto;
+import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
 import dev.bebomny.beaverdam.watchpost.entities.ShowMetadata;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -157,12 +159,24 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
     @Override
     @Transactional
     public boolean requestAnimeItemDownload(Long animeItemId) {
-        if (!animeRssItemRepository.existsById(animeItemId)) {
+        Optional<AnimeRssItem> itemOpt = animeRssItemRepository.findWithSeriesById(animeItemId);
+        if (itemOpt.isEmpty()) {
             log.atWarn().log("Requested download for non-existent anime item Id: {}", animeItemId);
             return false;
         }
 
-        eventPublisher.publishEvent(new AnimeItemDownloadRequestEvent(animeItemId, null, defaultDownloadTag));
+        AnimeRssItem item = itemOpt.get();
+        String safeTorrentName = String.format("%s - %s", item.getSeriesName(), item.getEpisode());
+        String customShareRatio = item.getShowSeries() != null ? item.getShowSeries().getCustomShareRatio() : null;
+
+        eventPublisher.publishEvent(new TorrentDownloadRequestEvent(
+                item.getId(),
+                item.getFileLink(),
+                safeTorrentName,
+                null,
+                defaultDownloadTag,
+                customShareRatio
+        ));
         log.atInfo().log("Published download request for anime item Id: {} with tag '{}'", animeItemId, defaultDownloadTag);
         return true;
     }

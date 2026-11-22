@@ -1,7 +1,5 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.common.events.DiscordGuildMetadataUpdatedEvent;
-import dev.bebomny.beaverdam.common.events.DiscordUserMetadataUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;

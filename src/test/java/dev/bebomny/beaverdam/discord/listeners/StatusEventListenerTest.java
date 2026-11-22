@@ -1,8 +1,8 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadFinishedEvent;
 import dev.bebomny.beaverdam.discord.entities.DiscordUiMessage;
 import dev.bebomny.beaverdam.discord.repos.DiscordUiMessageRepository;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadFinishedEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -42,7 +42,7 @@ class StatusEventListenerTest {
         when(uiMsgRepository.findFirstByTargetModuleAndTargetItemTypeAndTargetItemId("watchpost", "anime_rss_item", 55L))
                 .thenReturn(Optional.empty());
 
-        listener.onAnimeItemDownloadFinish(new AnimeItemDownloadFinishedEvent(55L));
+        listener.onAnimeItemDownloadFinish(new TorrentDownloadFinishedEvent(55L));
 
         verify(uiMsgRepository).findFirstByTargetModuleAndTargetItemTypeAndTargetItemId("watchpost", "anime_rss_item", 55L);
         verifyNoInteractions(jda);
@@ -63,7 +63,7 @@ class StatusEventListenerTest {
         when(jda.getTextChannelById(123456L)).thenReturn(textChannel);
         when(textChannel.retrieveMessageById(789012L)).thenReturn(retrieveMessageAction);
 
-        listener.onAnimeItemDownloadFinish(new AnimeItemDownloadFinishedEvent(55L));
+        listener.onAnimeItemDownloadFinish(new TorrentDownloadFinishedEvent(55L));
 
         verify(textChannel).retrieveMessageById(789012L);
         verify(retrieveMessageAction).queue(any(), any());

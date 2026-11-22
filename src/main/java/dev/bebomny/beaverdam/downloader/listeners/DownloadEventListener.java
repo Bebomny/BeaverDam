@@ -1,7 +1,7 @@
 package dev.bebomny.beaverdam.downloader.listeners;
 
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadFinishedEvent;
-import dev.bebomny.beaverdam.common.events.AnimeItemDownloadRequestEvent;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadFinishedEvent;
+import dev.bebomny.beaverdam.downloader.events.TorrentDownloadRequestEvent;
 import dev.bebomny.beaverdam.downloader.services.TorrentManagerService;
 import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import lombok.RequiredArgsConstructor;

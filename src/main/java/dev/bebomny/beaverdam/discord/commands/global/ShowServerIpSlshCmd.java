@@ -2,8 +2,8 @@ package dev.bebomny.beaverdam.discord.commands.global;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import dev.bebomny.beaverdam.common.dtos.DockerPublishedServer;
-import dev.bebomny.beaverdam.common.helpers.FormatHelper;
+import dev.bebomny.beaverdam.dockerintegration.api.DockerPublishedServer;
+import dev.bebomny.beaverdam.discord.helpers.FormatHelper;
 import dev.bebomny.beaverdam.discord.commands.GlobalCommand;
 import dev.bebomny.beaverdam.dockerintegration.DockerCommandApi;
 import lombok.extern.slf4j.Slf4j;

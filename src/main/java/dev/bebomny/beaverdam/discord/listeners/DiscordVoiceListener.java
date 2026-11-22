@@ -1,8 +1,8 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
-import dev.bebomny.beaverdam.common.events.DiscordVoiceStateChangedEvent;
-import dev.bebomny.beaverdam.common.events.types.ActionTrigger;
-import dev.bebomny.beaverdam.common.events.types.VoiceEventType;
+import dev.bebomny.beaverdam.analytics.api.ActionTrigger;
+import dev.bebomny.beaverdam.analytics.api.VoiceEventType;
+import dev.bebomny.beaverdam.analytics.api.VoiceStateChangeCommand;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;

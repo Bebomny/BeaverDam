@@ -2,7 +2,6 @@ package dev.bebomny.beaverdam.discord.commands.management;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import dev.bebomny.beaverdam.common.events.WatchpostRefetchFeedsRequestEvent;
 import dev.bebomny.beaverdam.discord.commands.ManagementCommand;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import org.springframework.context.ApplicationEventPublisher;

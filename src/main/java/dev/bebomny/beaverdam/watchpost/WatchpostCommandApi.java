@@ -1,9 +1,9 @@
 package dev.bebomny.beaverdam.watchpost;
 
-import dev.bebomny.beaverdam.common.dtos.RssFeedSaveResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesStateDetailsResult;
-import dev.bebomny.beaverdam.common.dtos.ShowSeriesUpdateRequest;
-import dev.bebomny.beaverdam.common.events.types.ShowSeriesParam;
+import dev.bebomny.beaverdam.watchpost.api.RssFeedSaveResult;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesParam;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
+import dev.bebomny.beaverdam.watchpost.api.ShowSeriesUpdateRequest;
 
 public interface WatchpostCommandApi {
     RssFeedSaveResult addNewRssFeed(String feedName, String feedProcessor, String feedUrl, Long pollInterval, Boolean enabled);

@@ -1,6 +1,6 @@
 package dev.bebomny.beaverdam.web.listeners;
 
-import dev.bebomny.beaverdam.common.events.WatchpostNewAnimeItemEvent;
+import dev.bebomny.beaverdam.watchpost.events.WatchpostNewAnimeItemEvent;
 import dev.bebomny.beaverdam.web.services.SseNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
