@@ -6,6 +6,7 @@ import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
 import dev.bebomny.beaverdam.watchpost.api.ShowSeriesUpdateRequest;
 import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
+import dev.bebomny.beaverdam.watchpost.listeners.WatchpostRefetchRequestedEvent;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowMetadataRepository;
@@ -57,24 +58,61 @@ class WatchpostCommandServiceImplTest {
 
     @Test
     void requestAnimeItemDownloadPublishesEventWhenItemExists() {
-        when(animeRssItemRepository.existsById(42L)).thenReturn(true);
+        ShowSeries series = ShowSeries.builder()
+                .id(10L)
+                .seriesName("Lycoris Recoil")
+                .customShareRatio("2.0")
+                .build();
+        AnimeRssItem item = AnimeRssItem.builder()
+                .id(42L)
+                .seriesName("Lycoris Recoil")
+                .episode("01")
+                .fileLink("https://example.com/ep1.torrent")
+                .showSeries(series)
+                .build();
+        when(animeRssItemRepository.findWithSeriesById(42L)).thenReturn(Optional.of(item));
 
         boolean result = service.requestAnimeItemDownload(42L);
 
         assertThat(result).isTrue();
-        ArgumentCaptor<AnimeItemDownloadRequestEvent> captor = ArgumentCaptor.forClass(AnimeItemDownloadRequestEvent.class);
+        ArgumentCaptor<TorrentDownloadRequestEvent> captor = ArgumentCaptor.forClass(TorrentDownloadRequestEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
-        assertThat(captor.getValue()).isEqualTo(new AnimeItemDownloadRequestEvent(42L, null, "beaverdam"));
+        assertThat(captor.getValue()).isEqualTo(new TorrentDownloadRequestEvent(
+                42L,
+                "https://example.com/ep1.torrent",
+                "Lycoris Recoil - 01",
+                null,
+                "beaverdam",
+                "2.0"
+        ));
     }
 
     @Test
     void requestAnimeItemDownloadReturnsFalseAndDoesNotPublishWhenMissing() {
-        when(animeRssItemRepository.existsById(999L)).thenReturn(false);
+        when(animeRssItemRepository.findWithSeriesById(999L)).thenReturn(Optional.empty());
 
         boolean result = service.requestAnimeItemDownload(999L);
 
         assertThat(result).isFalse();
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void markAnimeItemDisplayedUpdatesItemWhenPresent() {
+        AnimeRssItem item = AnimeRssItem.builder().id(42L).displayed(false).build();
+        when(animeRssItemRepository.findById(42L)).thenReturn(Optional.of(item));
+
+        service.markAnimeItemDisplayed(42L);
+
+        assertThat(item.getDisplayed()).isTrue();
+        verify(animeRssItemRepository).save(item);
+    }
+
+    @Test
+    void triggerManualFeedRefetchPublishesInternalRefetchEvent() {
+        service.triggerManualFeedRefetch("admin", "discord");
+
+        verify(eventPublisher).publishEvent(new WatchpostRefetchRequestedEvent("admin", "discord"));
     }
 
     @Test

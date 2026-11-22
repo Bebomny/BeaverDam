@@ -7,17 +7,16 @@ import dev.bebomny.beaverdam.watchpost.WatchpostQueryApi;
 import dev.bebomny.beaverdam.watchpost.api.ShowSeriesParam;
 import dev.bebomny.beaverdam.watchpost.api.ShowSeriesStateDetailsResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-//Wrapper class for Events as they require a transaction to function properly
 @Service
 @RequiredArgsConstructor
 public class DiscordActionService {
 
+    private static final String ANIME_RSS_ITEM_TYPE = "anime_rss_item";
+
     private final DiscordUiMessageRepository uiMsgRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final WatchpostQueryApi watchpostQueryApi;
     private final WatchpostCommandApi watchpostCommandApi;
 
@@ -29,7 +28,9 @@ public class DiscordActionService {
     @Transactional
     public void saveMappingAndPublishAnimeDisplayed(DiscordUiMessage partialMapping) {
         uiMsgRepository.save(partialMapping);
-        eventPublisher.publishEvent(new AnimeItemDisplayedEvent(partialMapping.getTargetItemId()));
+        if (ANIME_RSS_ITEM_TYPE.equals(partialMapping.getTargetItemType())) {
+            watchpostCommandApi.markAnimeItemDisplayed(partialMapping.getTargetItemId());
+        }
     }
 
     public boolean publishButtonDownload(Long targetItemId) {

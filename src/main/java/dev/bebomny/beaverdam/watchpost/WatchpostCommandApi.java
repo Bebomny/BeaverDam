@@ -12,4 +12,6 @@ public interface WatchpostCommandApi {
     boolean removeMetadata(Long showSeriesId);
     void updateShowSeriesState(Long showSeriesId, ShowSeriesUpdateRequest request);
     boolean requestAnimeItemDownload(Long animeItemId);
+    void markAnimeItemDisplayed(Long animeItemId);
+    void triggerManualFeedRefetch(String requester, String source);
 }

@@ -85,19 +85,6 @@ public class WatchpostQueryServiceImpl implements WatchpostQueryApi {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<DownloadDetailsResult> getDownloadDetailsForAnimeItemById(Long animeItemId) {
-        return animeItemRepository.findWithSeriesById(animeItemId)
-                .map(animeItem -> new DownloadDetailsResult(
-                        animeItemId,
-                        animeItem.getFileLink(),
-                        animeItem.getSeriesName(),
-                        animeItem.getEpisode(),
-                        animeItem.getShowSeries().getCustomShareRatio()
-                ));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Page<AnimeItemDetailsResult> getLatestAnimeItems(boolean interestingOnly, Pageable pageable) {
         Page<AnimeRssItem> entityPage = animeItemRepository.findAnimeItemsWithDetails(
                 interestingOnly,

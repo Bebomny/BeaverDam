@@ -11,6 +11,7 @@ import dev.bebomny.beaverdam.watchpost.entities.AnimeRssItem;
 import dev.bebomny.beaverdam.watchpost.entities.RssFeed;
 import dev.bebomny.beaverdam.watchpost.entities.ShowMetadata;
 import dev.bebomny.beaverdam.watchpost.entities.ShowSeries;
+import dev.bebomny.beaverdam.watchpost.listeners.WatchpostRefetchRequestedEvent;
 import dev.bebomny.beaverdam.watchpost.repos.AnimeRssItemRepository;
 import dev.bebomny.beaverdam.watchpost.repos.RssFeedRepository;
 import dev.bebomny.beaverdam.watchpost.repos.ShowMetadataRepository;
@@ -179,5 +180,19 @@ public class WatchpostCommandServiceImpl implements WatchpostCommandApi {
         ));
         log.atInfo().log("Published download request for anime item Id: {} with tag '{}'", animeItemId, defaultDownloadTag);
         return true;
+    }
+
+    @Override
+    @Transactional
+    public void markAnimeItemDisplayed(Long animeItemId) {
+        animeRssItemRepository.findById(animeItemId).ifPresent(animeItem -> {
+            animeItem.setDisplayed(true);
+            animeRssItemRepository.save(animeItem);
+        });
+    }
+
+    @Override
+    public void triggerManualFeedRefetch(String requester, String source) {
+        eventPublisher.publishEvent(new WatchpostRefetchRequestedEvent(requester, source));
     }
 }
