@@ -1,5 +1,6 @@
 package dev.bebomny.beaverdam.discord.services;
 
+import dev.bebomny.beaverdam.analytics.AnalyticsCommandApi;
 import dev.bebomny.beaverdam.analytics.AnalyticsQueryApi;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
@@ -8,7 +9,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +22,17 @@ public class DiscordMetadataSyncService {
 
     private final JDA jda;
     private final AnalyticsQueryApi analyticsQueryApi;
-    private final ApplicationEventPublisher eventPublisher;
+    private final AnalyticsCommandApi analyticsCommandApi;
     private final Set<Long> monitoredGuilds;
 
     public DiscordMetadataSyncService(
             JDA jda,
             AnalyticsQueryApi analyticsQueryApi,
-            ApplicationEventPublisher eventPublisher,
+            AnalyticsCommandApi analyticsCommandApi,
             @Value("${analytics.discord.monitored_guilds:}") Set<Long> monitoredGuilds) {
         this.jda = jda;
         this.analyticsQueryApi = analyticsQueryApi;
-        this.eventPublisher = eventPublisher;
+        this.analyticsCommandApi = analyticsCommandApi;
         this.monitoredGuilds = monitoredGuilds != null ? monitoredGuilds : Set.of();
     }
 
@@ -47,20 +47,20 @@ public class DiscordMetadataSyncService {
                 continue;
             }
 
-            eventPublisher.publishEvent(new DiscordGuildMetadataUpdatedEvent(
+            analyticsCommandApi.upsertGuildMetadata(
                     guild.getIdLong(),
                     guild.getName(),
                     guild.getIconUrl()
-            ));
+            );
 
             for (Member member : guild.getMembers()) {
                 User user = member.getUser();
                 if (syncedUserIds.add(user.getIdLong())) {
-                    eventPublisher.publishEvent(new DiscordUserMetadataUpdatedEvent(
+                    analyticsCommandApi.upsertUserMetadata(
                             user.getIdLong(),
                             user.getName(),
                             user.getEffectiveAvatarUrl()
-                    ));
+                    );
                 }
             }
         }
@@ -74,11 +74,11 @@ public class DiscordMetadataSyncService {
             log.atInfo().log("Backfilling Discord user metadata for {} historical users", toBackfill.size());
             for (Long userId : toBackfill) {
                 jda.retrieveUserById(userId).queue(
-                        user -> eventPublisher.publishEvent(new DiscordUserMetadataUpdatedEvent(
+                        user -> analyticsCommandApi.upsertUserMetadata(
                                 user.getIdLong(),
                                 user.getName(),
                                 user.getEffectiveAvatarUrl()
-                        )),
+                        ),
                         failure -> log.atDebug().log("Failed to backfill Discord metadata for user {}: {}",
                                 userId, failure.getMessage())
                 );

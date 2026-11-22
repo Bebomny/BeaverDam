@@ -3,21 +3,21 @@ package dev.bebomny.beaverdam.discord.commands.management;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import dev.bebomny.beaverdam.discord.commands.ManagementCommand;
+import dev.bebomny.beaverdam.watchpost.WatchpostCommandApi;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RefetchFeedsSlshCmd extends SlashCommand implements ManagementCommand {
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final WatchpostCommandApi watchpostCommandApi;
 
-    public RefetchFeedsSlshCmd(ApplicationEventPublisher applicationEventPublisher) {
+    public RefetchFeedsSlshCmd(WatchpostCommandApi watchpostCommandApi) {
         this.name = "refetchfeeds";
         this.help = "Refreshes enabled rss feeds";
         this.ownerCommand = true;
         this.contexts = new InteractionContextType[]{InteractionContextType.GUILD};
-        this.eventPublisher = applicationEventPublisher;
+        this.watchpostCommandApi = watchpostCommandApi;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class RefetchFeedsSlshCmd extends SlashCommand implements ManagementComma
                 .setEphemeral(true)
                 .queue();
 
-        eventPublisher.publishEvent(new WatchpostRefetchFeedsRequestEvent(event.getUser().getName(), "discord"));
+        watchpostCommandApi.triggerManualFeedRefetch(event.getUser().getName(), "discord");
     }
 
 

@@ -1,5 +1,6 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
+import dev.bebomny.beaverdam.analytics.AnalyticsCommandApi;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -9,7 +10,6 @@ import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -21,7 +21,7 @@ public class DiscordMetadataEventListener extends ListenerAdapter {
     @Value("${analytics.discord.monitored_guilds:}")
     private Set<Long> monitoredGuilds;
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final AnalyticsCommandApi analyticsCommandApi;
 
     @Override
     public void onGuildUpdateName(GuildUpdateNameEvent event) {
@@ -47,18 +47,18 @@ public class DiscordMetadataEventListener extends ListenerAdapter {
         if (monitoredGuilds != null && !monitoredGuilds.isEmpty() && !monitoredGuilds.contains(guild.getIdLong())) {
             return;
         }
-        eventPublisher.publishEvent(new DiscordGuildMetadataUpdatedEvent(
+        analyticsCommandApi.upsertGuildMetadata(
                 guild.getIdLong(),
                 guild.getName(),
                 guild.getIconUrl()
-        ));
+        );
     }
 
     private void publishUserUpdate(User user) {
-        eventPublisher.publishEvent(new DiscordUserMetadataUpdatedEvent(
+        analyticsCommandApi.upsertUserMetadata(
                 user.getIdLong(),
                 user.getName(),
                 user.getEffectiveAvatarUrl()
-        ));
+        );
     }
 }

@@ -1,5 +1,6 @@
 package dev.bebomny.beaverdam.discord.services;
 
+import dev.bebomny.beaverdam.analytics.AnalyticsCommandApi;
 import dev.bebomny.beaverdam.analytics.AnalyticsQueryApi;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.Set;
@@ -27,11 +27,11 @@ class DiscordMetadataSyncServiceTest {
     @Mock
     private AnalyticsQueryApi analyticsQueryApi;
     @Mock
-    private ApplicationEventPublisher eventPublisher;
+    private AnalyticsCommandApi analyticsCommandApi;
 
     @Test
     @SuppressWarnings("unchecked")
-    void syncMetadataOnStartupPublishesGuildCachedMembersAndBackfillsMissingUsers() {
+    void syncMetadataOnStartupUpsertsGuildCachedMembersAndBackfillsMissingUsers() {
         Guild guild = mock(Guild.class);
         Member member = mock(Member.class);
         User cachedUser = mock(User.class);
@@ -61,16 +61,16 @@ class DiscordMetadataSyncServiceTest {
         }).when(retrieveAction).queue(any(Consumer.class), any(Consumer.class));
 
         DiscordMetadataSyncService syncService = new DiscordMetadataSyncService(
-                jda, analyticsQueryApi, eventPublisher, Set.of(100L));
+                jda, analyticsQueryApi, analyticsCommandApi, Set.of(100L));
 
         syncService.syncMetadataOnStartup();
 
-        verify(eventPublisher).publishEvent(new DiscordGuildMetadataUpdatedEvent(
-                100L, "BeaverBot_Support_Server", "https://cdn.discordapp.com/icons/100/abc.png"));
-        verify(eventPublisher).publishEvent(new DiscordUserMetadataUpdatedEvent(
-                1L, "test_user", "https://cdn.discordapp.com/avatars/1/a.png"));
-        verify(eventPublisher).publishEvent(new DiscordUserMetadataUpdatedEvent(
-                2L, "offline_test_user", "https://cdn.discordapp.com/avatars/2/b.png"));
+        verify(analyticsCommandApi).upsertGuildMetadata(
+                100L, "BeaverBot_Support_Server", "https://cdn.discordapp.com/icons/100/abc.png");
+        verify(analyticsCommandApi).upsertUserMetadata(
+                1L, "test_user", "https://cdn.discordapp.com/avatars/1/a.png");
+        verify(analyticsCommandApi).upsertUserMetadata(
+                2L, "offline_test_user", "https://cdn.discordapp.com/avatars/2/b.png");
         verify(jda, never()).retrieveUserById(1L);
     }
 }

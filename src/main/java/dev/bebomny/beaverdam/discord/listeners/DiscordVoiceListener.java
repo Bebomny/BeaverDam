@@ -1,5 +1,6 @@
 package dev.bebomny.beaverdam.discord.listeners;
 
+import dev.bebomny.beaverdam.analytics.AnalyticsCommandApi;
 import dev.bebomny.beaverdam.analytics.api.ActionTrigger;
 import dev.bebomny.beaverdam.analytics.api.VoiceEventType;
 import dev.bebomny.beaverdam.analytics.api.VoiceStateChangeCommand;
@@ -10,7 +11,6 @@ import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.guild.voice.*;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -23,14 +23,14 @@ public class DiscordVoiceListener extends ListenerAdapter {
     @Value("${analytics.discord.monitored_guilds:}")
     private Set<Long> monitoredGuilds;
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final AnalyticsCommandApi analyticsCommandApi;
 
     private boolean isNotMonitored(Guild guild) {
         return monitoredGuilds != null && !monitoredGuilds.isEmpty() && !monitoredGuilds.contains(guild.getIdLong());
     }
 
-    private DiscordVoiceStateChangedEvent.DiscordVoiceStateChangedEventBuilder baseEvent(Guild guild, User user) {
-        return DiscordVoiceStateChangedEvent.builder()
+    private VoiceStateChangeCommand.VoiceStateChangeCommandBuilder baseCommand(Guild guild, User user) {
+        return VoiceStateChangeCommand.builder()
                 .guildId(guild.getIdLong())
                 .guildName(guild.getName())
                 .guildIconUrl(guild.getIconUrl())
@@ -54,7 +54,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
 
         if (joinedChannel != null && leftChannel == null) {
             // the member joined an audio channel
-            eventPublisher.publishEvent(baseEvent(guild, user)
+            analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, user)
                     .eventType(VoiceEventType.CHANNEL_JOIN)
                     .channelId(joinedChannel.getIdLong())
                     .build());
@@ -62,7 +62,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
 
         if (leftChannel != null && joinedChannel == null) {
             // the member left an audio channel
-            eventPublisher.publishEvent(baseEvent(guild, user)
+            analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, user)
                     .eventType(VoiceEventType.CHANNEL_LEAVE)
                     .channelId(leftChannel.getIdLong())
                     .build());
@@ -70,7 +70,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
 
         if (joinedChannel != null && leftChannel != null) {
             // the member moved between two audio channels in the same guild
-            eventPublisher.publishEvent(baseEvent(guild, user)
+            analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, user)
                     .eventType(VoiceEventType.CHANNEL_MOVE)
                     .channelId(joinedChannel.getIdLong())
                     .previousChannelId(leftChannel.getIdLong())
@@ -89,7 +89,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
                 ? null
                 : event.getVoiceState().getChannel().getIdLong();
 
-        eventPublisher.publishEvent(baseEvent(guild, event.getMember().getUser())
+        analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, event.getMember().getUser())
                 .eventType(VoiceEventType.GUILD_MUTE)
                 .channelId(channelId)
                 .stateValue(event.isGuildMuted())
@@ -107,7 +107,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
                 ? null
                 : event.getVoiceState().getChannel().getIdLong();
 
-        eventPublisher.publishEvent(baseEvent(guild, event.getMember().getUser())
+        analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, event.getMember().getUser())
                 .eventType(VoiceEventType.GUILD_DEAFEN)
                 .channelId(channelId)
                 .stateValue(event.isGuildDeafened())
@@ -125,7 +125,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
                 ? null
                 : event.getVoiceState().getChannel().getIdLong();
 
-        eventPublisher.publishEvent(baseEvent(guild, event.getMember().getUser())
+        analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, event.getMember().getUser())
                 .eventType(VoiceEventType.SELF_MUTE)
                 .channelId(channelId)
                 .stateValue(event.isSelfMuted())
@@ -143,7 +143,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
                 ? null
                 : event.getVoiceState().getChannel().getIdLong();
 
-        eventPublisher.publishEvent(baseEvent(guild, event.getMember().getUser())
+        analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, event.getMember().getUser())
                 .eventType(VoiceEventType.SELF_DEAFEN)
                 .channelId(channelId)
                 .stateValue(event.isSelfDeafened())
@@ -161,7 +161,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
                 ? null
                 : event.getVoiceState().getChannel().getIdLong();
 
-        eventPublisher.publishEvent(baseEvent(guild, event.getMember().getUser())
+        analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, event.getMember().getUser())
                 .eventType(VoiceEventType.SUPPRESS)
                 .channelId(channelId)
                 .stateValue(event.isSuppressed())
@@ -179,7 +179,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
                 ? null
                 : event.getVoiceState().getChannel().getIdLong();
 
-        eventPublisher.publishEvent(baseEvent(guild, event.getMember().getUser())
+        analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, event.getMember().getUser())
                 .eventType(VoiceEventType.STREAM)
                 .channelId(channelId)
                 .stateValue(event.isStream())
@@ -197,7 +197,7 @@ public class DiscordVoiceListener extends ListenerAdapter {
                 ? null
                 : event.getVoiceState().getChannel().getIdLong();
 
-        eventPublisher.publishEvent(baseEvent(guild, event.getMember().getUser())
+        analyticsCommandApi.recordVoiceStateChange(baseCommand(guild, event.getMember().getUser())
                 .eventType(VoiceEventType.VIDEO)
                 .channelId(channelId)
                 .stateValue(event.isSendingVideo())
